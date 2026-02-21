@@ -1,26 +1,28 @@
 <script setup lang="ts">
-import type { CollegeFeature } from "~/utils/types";
+import type { SchoolFeature } from "~/utils/types";
 import maplibregl from "maplibre-gl";
-import { getIpsColorStops, ipsColor, parseCollegeFeature } from "~/utils/colors";
+import { getIpsColorStops, ipsColor, parseSchoolFeature } from "~/utils/colors";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 const props = defineProps<{
-  filteredFeatures: CollegeFeature[];
-  selectedCollege: CollegeFeature | null;
-  selectCollege: (f: CollegeFeature | null) => void;
+  filteredFeatures: SchoolFeature[];
+  selectedCollege: SchoolFeature | null;
+  selectCollege: (f: SchoolFeature | null) => void;
   selectedRegions: string[];
   hasNonRegionFilters: boolean;
   totalCount: number;
   locationMode: "all" | "metropolitan" | "drom-com";
 }>();
 
+const dataset = useDataset();
+
 const mapContainer = ref<HTMLDivElement>();
 const map = shallowRef<maplibregl.Map>();
 const popup = shallowRef<maplibregl.Popup>();
 
-const SOURCE_ID = "colleges";
-const LAYER_ID = "colleges-circles";
-const HIGHLIGHT_LAYER_ID = "colleges-highlight";
+const SOURCE_ID = "schools";
+const LAYER_ID = "schools-circles";
+const HIGHLIGHT_LAYER_ID = "schools-highlight";
 
 // France center
 const INITIAL_CENTER: [number, number] = [2.3, 46.7];
@@ -148,7 +150,7 @@ onMounted(() => {
       const feature = e.features[0];
       if (!feature)
         return;
-      const college = parseCollegeFeature(feature);
+      const college = parseSchoolFeature(feature);
       props.selectCollege(college);
     });
 
@@ -183,6 +185,7 @@ onMounted(() => {
       const valeurAjoutee = featureProps.valeur_ajoutee !== "null" && featureProps.valeur_ajoutee !== null ? Number(featureProps.valeur_ajoutee) : null;
       const noteEcrit = featureProps.note_ecrit !== "null" && featureProps.note_ecrit !== null ? Number(featureProps.note_ecrit) : null;
       const nbCandidats = featureProps.nb_candidats !== "null" && featureProps.nb_candidats !== null ? Number(featureProps.nb_candidats) : null;
+      const tauxMentions = featureProps.taux_mentions !== "null" && featureProps.taux_mentions !== null ? Number(featureProps.taux_mentions) : null;
 
       // Calculate mentions percentages
       const mentionsTb = featureProps.mentions_tb !== "null" && featureProps.mentions_tb !== null ? Number(featureProps.mentions_tb) : null;
@@ -223,9 +226,9 @@ onMounted(() => {
         `;
       }
 
-      // DNB stats section - 2x2 grid
-      let dnbStatsHtml = "";
-      if (tauxReussite !== null || valeurAjoutee !== null || noteEcrit !== null || nbCandidats !== null) {
+      // Exam stats section - 2x2 grid
+      let examStatsHtml = "";
+      if (tauxReussite !== null || valeurAjoutee !== null || noteEcrit !== null || tauxMentions !== null || nbCandidats !== null) {
         const statsHtml = [];
 
         if (tauxReussite !== null) {
@@ -247,11 +250,22 @@ onMounted(() => {
           `);
         }
 
-        if (noteEcrit !== null) {
+        // Note écrit - colleges only
+        if (noteEcrit !== null && dataset.id === "colleges") {
           statsHtml.push(`
             <div>
               <div class="text-lg font-bold text-zinc-900">${noteEcrit.toFixed(1)}<span class="text-sm">/20</span></div>
               <div class="text-[10px] text-zinc-500 uppercase tracking-wider">Moyenne</div>
+            </div>
+          `);
+        }
+
+        // Taux de mentions - lycees only
+        if (tauxMentions !== null && dataset.id === "lycees") {
+          statsHtml.push(`
+            <div>
+              <div class="text-lg font-bold text-zinc-900">${tauxMentions.toFixed(0)}<span class="text-sm">%</span></div>
+              <div class="text-[10px] text-zinc-500 uppercase tracking-wider">Mentions</div>
             </div>
           `);
         }
@@ -266,7 +280,7 @@ onMounted(() => {
         }
 
         if (statsHtml.length > 0) {
-          dnbStatsHtml = `
+          examStatsHtml = `
             <div class="grid grid-cols-2 gap-3 mt-3">
               ${statsHtml.join("")}
             </div>
@@ -280,7 +294,7 @@ onMounted(() => {
         closeButton: false,
         closeOnClick: false,
         offset: 12,
-        className: "college-popup",
+        className: "school-popup",
       })
         .setLngLat(coords)
         .setHTML(`
@@ -290,7 +304,7 @@ onMounted(() => {
             <span class="text-2xl font-bold" style="color: ${ipsColorValue}">${ips.toFixed(0)}</span>
             <span class="text-xs text-zinc-500 ml-1">IPS</span>
           </div>
-          ${dnbStatsHtml}
+          ${examStatsHtml}
           ${mentionsHtml}
         `)
         .addTo(m);
@@ -382,22 +396,22 @@ watch(() => props.selectedCollege, (college) => {
   });
 });
 
-function buildGeoJSON(features: CollegeFeature[]) {
+function buildGeoJSON(features: SchoolFeature[]) {
   return {
     type: "FeatureCollection" as const,
     features,
   };
 }
 
-// Highlight filtered colleges with ring that disappears after 3 seconds
-function highlightFilteredColleges() {
+// Highlight filtered schools with ring that disappears after 3 seconds
+function highlightFilteredSchools() {
   const m = map.value;
   if (!m || isHighlighting.value)
     return;
 
   isHighlighting.value = true;
 
-  // Set feature-state for all filtered colleges
+  // Set feature-state for all filtered schools
   props.filteredFeatures.forEach((feature) => {
     m.setFeatureState(
       { source: SOURCE_ID, id: feature.properties.uai },
@@ -419,7 +433,7 @@ function highlightFilteredColleges() {
 
 // Expose highlight function to parent
 defineExpose({
-  highlightFilteredColleges,
+  highlightFilteredSchools,
 });
 
 onUnmounted(() => {
@@ -437,7 +451,7 @@ onUnmounted(() => {
 </template>
 
 <style>
-.college-popup .maplibregl-popup-content {
+.school-popup .maplibregl-popup-content {
   padding: 10px 14px;
   border-radius: 16px;
   font-family: inherit;
@@ -445,12 +459,12 @@ onUnmounted(() => {
   max-width: 350px;
 }
 
-.dark .college-popup .maplibregl-popup-content {
+.dark .school-popup .maplibregl-popup-content {
   background: #27272a;
   color: #fafafa;
 }
 
-.college-popup .maplibregl-popup-tip {
+.school-popup .maplibregl-popup-tip {
   display: none;
 }
 

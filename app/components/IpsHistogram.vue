@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import type { CollegeFeature } from "~/utils/types";
+import type { SchoolFeature } from "~/utils/types";
 import { motion } from "motion-v";
 import { ipsColor } from "~/utils/colors";
 
 const { features, selectedIps } = defineProps<{
-  features: CollegeFeature[];
+  features: SchoolFeature[];
   selectedIps: number | null;
 }>();
+
+const dataset = useDataset();
 
 const BINS = 24;
 const MIN = 50;
@@ -46,7 +48,7 @@ const histogram = computed(() => {
         Distribution IPS
       </div>
       <div class="text-xs text-zinc-400">
-        {{ features.length.toLocaleString('fr-FR') }} collège{{ features.length > 1 ? 's' : '' }}
+        {{ features.length.toLocaleString('fr-FR') }} {{ dataset.labelPlural }}
       </div>
     </div>
     <div class="flex items-end gap-px h-20 pt-1">

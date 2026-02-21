@@ -2,6 +2,8 @@
 const { status } = defineProps<{
   status: string;
 }>();
+
+const dataset = useDataset();
 </script>
 
 <template>
@@ -14,7 +16,7 @@ const { status } = defineProps<{
         Chargement des données
       </p>
       <p class="text-sm text-zinc-500 leading-relaxed">
-        {{ status === 'pending' ? 'Récupération et agrégation de ~7 000 collèges depuis data.education.gouv.fr' : 'Connexion en cours…' }}
+        {{ status === 'pending' ? dataset.loadingMessage : 'Connexion en cours…' }}
       </p>
       <div class="mt-4 flex items-center justify-center gap-1 text-xs text-zinc-400">
         <UIcon

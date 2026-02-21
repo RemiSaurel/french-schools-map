@@ -5,7 +5,11 @@
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
+    "dev:colleges": "NUXT_PUBLIC_DATASET=colleges nuxt dev",
+    "dev:lycees": "NUXT_PUBLIC_DATASET=lycees nuxt dev",
     "generate": "nuxt generate",
+    "generate:colleges": "NUXT_PUBLIC_DATASET=colleges nuxt generate",
+    "generate:lycees": "NUXT_PUBLIC_DATASET=lycees nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "lint": "eslint .",

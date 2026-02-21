@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { CollegeFeature } from "~/utils/types";
+import type { SchoolFeature } from "~/utils/types";
 import { formatFr } from "~/utils/colors";
 
 interface Props {
   label: string;
-  college1: CollegeFeature;
-  college2: CollegeFeature;
+  college1: SchoolFeature;
+  college2: SchoolFeature;
   value1: number | null;
   value2: number | null;
   decimals?: number;

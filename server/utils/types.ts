@@ -1,4 +1,4 @@
-export interface CollegeFeature {
+export interface SchoolFeature {
   type: "Feature";
   geometry: {
     type: "Point";
@@ -22,16 +22,24 @@ export interface CollegeFeature {
     nb_candidats: number | null;
     valeur_ajoutee: number | null;
     note_ecrit: number | null;
+    // Lycee-specific: taux de mentions (percentage)
+    taux_mentions: number | null;
+    // Lycee-specific: valeur ajoutée mentions
+    va_mentions: number | null;
   };
 }
 
-export interface CollegeGeoJSON {
+export interface SchoolGeoJSON {
   type: "FeatureCollection";
-  features: CollegeFeature[];
+  features: SchoolFeature[];
   metadata: {
     total: number;
     ips_year: string;
-    dnb_session: string;
+    exam_session: string;
     generated_at: string;
   };
 }
+
+// Backward compatibility aliases
+export type CollegeFeature = SchoolFeature;
+export type CollegeGeoJSON = SchoolGeoJSON;

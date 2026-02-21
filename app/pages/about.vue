@@ -1,31 +1,12 @@
 <script setup lang="ts">
 definePageMeta({ layout: false });
 
-useSeoMeta({
-  title: "À propos — Carte des Collèges",
-  description: "Sources de données, méthode et crédits du projet Carte des Collèges.",
-});
+const dataset = useDataset();
 
-const datasets = [
-  {
-    name: "Indice de Position Sociale (IPS)",
-    id: "fr-en-ips-colleges-ap2023",
-    description: "Indice synthétique de la position sociale des élèves, calculé par la DEPP à partir des professions des parents. Plus l'IPS est élevé, plus le contexte socio-économique est favorable.",
-    year: "2024-2025",
-  },
-  {
-    name: "Indicateurs de valeur ajoutée des collèges (IVAC)",
-    id: "fr-en-indicateurs-valeur-ajoutee-colleges",
-    description: "Taux de réussite au DNB, notes moyennes, mentions, et valeur ajoutée de chaque collège par rapport à ce qu'on attend compte tenu de sa sociologie.",
-    year: "Session 2024",
-  },
-  {
-    name: "Annuaire de l'éducation",
-    id: "fr-en-annuaire-education",
-    description: "Coordonnées géographiques, adresse, secteur (public/privé), académie et commune de chaque établissement scolaire.",
-    year: "Mis à jour en continu",
-  },
-];
+useSeoMeta({
+  title: `À propos — Carte des ${dataset.labelPluralTitle}`,
+  description: `Sources de données, méthode et crédits du projet Carte des ${dataset.labelPluralTitle}.`,
+});
 </script>
 
 <template>
@@ -51,14 +32,11 @@ const datasets = [
       <!-- Intro -->
       <section>
         <h2 class="text-2xl font-bold text-highlighted">
-          Carte des Collèges
+          Carte des {{ dataset.labelPluralTitle }}
         </h2>
         <p class="mt-3 text-muted leading-relaxed">
-          Ce projet explore les données des collèges en France en croisant
-          l'<strong class="text-default">indice de position sociale</strong> (IPS)
-          avec les <strong class="text-default">résultats au diplôme national du brevet</strong> (DNB).
-          Chaque point sur la carte représente un collège,
-          coloré selon son IPS, avec ses résultats détaillés accessibles en un clic.
+          {{ dataset.aboutIntro }}
+          {{ dataset.aboutDescription }}
         </p>
       </section>
 
@@ -82,7 +60,7 @@ const datasets = [
 
         <div class="mt-4 grid gap-3 md:grid-cols-3">
           <DatasetCard
-            v-for="ds in datasets"
+            v-for="ds in dataset.dataSources"
             :id="ds.id"
             :key="ds.id"
             :name="ds.name"
@@ -93,17 +71,11 @@ const datasets = [
       </section>
 
       <div class="mt-3 space-y-3 text-sm text-muted leading-relaxed">
-        <p>
-          Les trois jeux de données sont croisés côté serveur via le
-          <strong class="text-default">code UAI</strong> (identifiant unique de chaque établissement).
-          Seuls les collèges présents dans les trois sources sont affichés,
-          soit environ <strong class="text-default">7 000 collèges</strong>.
-        </p>
-        <p>
-          L'IPS utilisé correspond à la rentrée <strong class="text-default">2024-2025</strong>,
-          les résultats au DNB à la session <strong class="text-default">2024</strong>.
-          La valeur ajoutée mesure l'écart entre le taux de réussite observé et celui attendu
-          compte tenu de la composition sociale de l'établissement.
+        <p
+          v-for="(paragraph, i) in dataset.aboutExplanation"
+          :key="i"
+        >
+          {{ paragraph }}
         </p>
         <p>
           Les couleurs sur la carte suivent un gradient divergent :
@@ -124,7 +96,7 @@ const datasets = [
         </NuxtLink>
         ·
         Code source disponible sur <a
-          href="https://github.com/remisaurel/colleges-france"
+          :href="dataset.githubUrl"
           target="_blank"
           class="text-highlighted underline"
         >GitHub</a>

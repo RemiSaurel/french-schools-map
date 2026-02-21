@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const config = useRuntimeConfig();
+const dataset = useDataset();
 
 useHead({
   meta: [
@@ -13,14 +14,11 @@ useHead({
   },
 });
 
-const title = "Carte des collèges en France - IPS et résultats au DNB";
-const description = "Explorez les collèges en France : indice de position sociale (IPS) et résultats au DNB de chaque collège, sur une carte interactive.";
-
 useSeoMeta({
-  title,
-  description,
-  ogTitle: title,
-  ogDescription: description,
+  title: dataset.seoTitle,
+  description: dataset.seoDescription,
+  ogTitle: dataset.seoTitle,
+  ogDescription: dataset.seoDescription,
   twitterCard: "summary_large_image",
 });
 </script>

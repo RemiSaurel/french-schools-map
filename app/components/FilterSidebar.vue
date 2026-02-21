@@ -23,13 +23,16 @@ import {
 
 const props = defineProps<{
   filters: FilterState;
-  hasDnbFilters: boolean;
+  hasExamFilters: boolean;
   onReset: () => void;
 }>();
 
 const emit = defineEmits<{
   "update:filters": [filters: FilterState];
 }>();
+
+const dataset = useDataset();
+const isColleges = dataset.id === "colleges";
 
 // Create local writable computed refs that emit updates
 const search = computed({
@@ -200,10 +203,10 @@ const accordionItems: AccordionItem[] = [
     slot: "type",
   },
   {
-    label: "Résultats DNB 2024",
-    value: "dnb",
+    label: `Résultats ${dataset.examLabel}`,
+    value: "exam",
     icon: "i-lucide-graduation-cap",
-    slot: "dnb",
+    slot: "exam",
   },
 ];
 
@@ -267,7 +270,7 @@ function disableNbCandidats() {
     <UInput
       v-model="search"
       icon="i-lucide-search"
-      placeholder="Rechercher un collège ou une ville…"
+      placeholder="Rechercher un établissement ou une ville…"
       class="w-full"
     >
       <template
@@ -421,8 +424,8 @@ function disableNbCandidats() {
         </div>
       </template>
 
-      <!-- DNB Section -->
-      <template #dnb>
+      <!-- Exam Section -->
+      <template #exam>
         <div class="px-2 pb-3 space-y-4">
           <!-- Taux de réussite -->
           <div>
@@ -504,8 +507,8 @@ function disableNbCandidats() {
             </div>
           </div>
 
-          <!-- Note écrit -->
-          <div>
+          <!-- Note écrit (colleges only) -->
+          <div v-if="isColleges">
             <div class="flex items-center justify-between mb-2">
               <label class="text-xs font-medium text-zinc-500">
                 {{ filters.noteEcritRange ? `Note écrit: ${noteEcritRange[0]} – ${noteEcritRange[1]} /20` : 'Note écrit (/20)' }}
