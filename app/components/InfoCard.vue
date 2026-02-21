@@ -180,7 +180,7 @@ const cardSubtitle = computed(() => {
     </div>
 
     <!-- Content area with scrollable content -->
-    <div class="flex-1 overflow-hidden">
+    <div class="flex-1 overflow-y-auto">
       <!-- Tabs -->
       <motion.div
         :initial="false"
@@ -207,7 +207,7 @@ const cardSubtitle = computed(() => {
           class="w-full gap-0"
           variant="link"
           :unmount-on-hide="false"
-          :ui="{ list: 'rounded-none', content: 'flex-1 overflow-y-auto px-4 py-2 max-h-[calc(100vh-2rem-4.5rem)]' }"
+          :ui="{ list: 'rounded-none', content: 'px-4 py-2' }"
         >
           <!-- Deselect button in tab list trailing slot -->
           <template #list-trailing>

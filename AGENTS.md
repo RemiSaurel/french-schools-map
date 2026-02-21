@@ -4,7 +4,9 @@ This document provides coding conventions and guidelines for AI agents working i
 
 ## Project Overview
 
-Educational data visualization app built with **Nuxt 4** (Vue 3.5, TypeScript strict mode), **Nuxt UI v4**, **MapLibre GL**, **Motion-v**, and **Tailwind CSS v4**. Displays ~7,000 French middle schools (collèges) on an interactive map, colored by IPS (Social Position Index) with DNB exam results.
+Educational data visualization app built with **Nuxt 4** (Vue 3.5, TypeScript strict mode), **Nuxt UI v4**, **MapLibre GL**, **Motion-v**, and **Tailwind CSS v4**. Displays French middle schools (collèges, ~7,000) and high schools (lycées, ~3,600) on an interactive map, colored by IPS (Social Position Index) with exam results (DNB / Baccalauréat).
+
+**Single codebase, two independent GitHub Pages deployments** — the active dataset is controlled by the `NUXT_PUBLIC_DATASET` environment variable (`"colleges"` or `"lycees"`).
 
 **Tech Stack:** Nuxt 4.3.0, Vue 3.5.27, TypeScript 5.9.3, Nuxt UI 4.4.0, MapLibre GL 5.17.0, Motion-v 1.10.2, VueUse 14.2.0, pnpm 10.28.2
 

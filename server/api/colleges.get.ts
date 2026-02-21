@@ -115,6 +115,7 @@ export default defineEventHandler(async () => {
         note_ecrit: ivac?.note_a_l_ecrit_g ?? null,
         taux_mentions: null,
         va_mentions: null,
+        type_lycee: null,
       },
     });
   }

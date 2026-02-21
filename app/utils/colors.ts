@@ -1,5 +1,5 @@
 import type maplibregl from "maplibre-gl";
-import type { SchoolFeature } from "./types";
+import type { LyceeType, SchoolFeature } from "./types";
 
 /**
  * Returns a CSS color for an IPS value on a diverging scale.
@@ -100,6 +100,17 @@ function parseNullableNumber(value: string | number | null | undefined): number 
 }
 
 /**
+ * Parse a type_lycee value from MapLibre properties (which stringifies everything)
+ */
+function parseLyceeType(value: string | null | undefined): LyceeType | null {
+  if (value === "null" || value === null || value === undefined)
+    return null;
+  if (value === "general" || value === "professionnel" || value === "polyvalent")
+    return value;
+  return null;
+}
+
+/**
  * Parse MapLibre feature properties into SchoolFeature
  * MapLibre stringifies GeoJSON properties, this function restores proper types
  */
@@ -129,6 +140,7 @@ export function parseSchoolFeature(feature: maplibregl.MapGeoJSONFeature): Schoo
       note_ecrit: parseNullableNumber(props.note_ecrit),
       taux_mentions: parseNullableNumber(props.taux_mentions),
       va_mentions: parseNullableNumber(props.va_mentions),
+      type_lycee: parseLyceeType(props.type_lycee),
     },
   };
 }

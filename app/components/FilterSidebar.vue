@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { AccordionItem } from "@nuxt/ui";
-import type { FilterState } from "~/utils/types";
+import type { FilterState, LyceeType } from "~/utils/types";
 import { useDebounceFn } from "@vueuse/core";
 import {
+  ALL_LYCEE_TYPES,
   DROM_COM_ACADEMIES,
   DROM_COM_REGIONS,
   formatAcademyName,
@@ -59,6 +60,24 @@ const secteur = computed({
   get: () => props.filters.secteur || "__all__",
   set: value => emit("update:filters", { ...props.filters, secteur: value === "__all__" ? "" : value }),
 });
+
+const typeLycee = computed({
+  get: () => props.filters.typeLycee,
+  set: (value: LyceeType[]) => emit("update:filters", { ...props.filters, typeLycee: value }),
+});
+
+function toggleLyceeType(type: LyceeType): void {
+  const current = typeLycee.value;
+  if (current.includes(type)) {
+    // Deselect: if it would result in all 3 selected, treat as "all" (empty)
+    const next = current.filter(t => t !== type);
+    typeLycee.value = next;
+  } else {
+    const next = [...current, type];
+    // If all 3 are now selected, treat as "all" (empty array)
+    typeLycee.value = next.length === ALL_LYCEE_TYPES.length ? [] : next;
+  }
+}
 
 // Local state for IPS range to handle immediate UI updates
 const localIpsRange = ref<[number, number]>(props.filters.ipsRange);
@@ -145,6 +164,7 @@ const hasActiveFilters = computed(() => {
   return props.filters.regions.length > 0
     || props.filters.academies.length > 0
     || props.filters.secteur !== ""
+    || props.filters.typeLycee.length > 0
     || props.filters.ipsRange[0] !== IPS_MIN
     || props.filters.ipsRange[1] !== IPS_MAX
     || props.filters.search !== ""
@@ -402,6 +422,53 @@ function disableNbCandidats() {
               Privé
             </button>
           </div>
+
+          <!-- Lycée sub-type filter (lycées dataset only) -->
+          <template v-if="!isColleges">
+            <label class="text-xs font-medium text-zinc-500 block pt-1">Filière</label>
+
+            <!-- Toutes les filières (full width) -->
+            <button
+              class="w-full px-2 py-1.5 text-xs font-medium rounded-lg transition-all border"
+              :class="typeLycee.length === 0
+                ? 'bg-zinc-100 border-zinc-300 text-zinc-900'
+                : 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-50'"
+              @click="typeLycee = []"
+            >
+              Toutes les filières
+            </button>
+
+            <!-- Général / Professionnel / Polyvalent grid -->
+            <div class="grid grid-cols-3 gap-1.5">
+              <button
+                class="w-full px-2 py-1.5 text-xs font-medium rounded-lg transition-all border"
+                :class="typeLycee.includes('general')
+                  ? 'bg-zinc-100 border-zinc-300 text-zinc-900'
+                  : 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-50'"
+                @click="toggleLyceeType('general')"
+              >
+                Général
+              </button>
+              <button
+                class="w-full px-2 py-1.5 text-xs font-medium rounded-lg transition-all border"
+                :class="typeLycee.includes('professionnel')
+                  ? 'bg-zinc-100 border-zinc-300 text-zinc-900'
+                  : 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-50'"
+                @click="toggleLyceeType('professionnel')"
+              >
+                Pro
+              </button>
+              <button
+                class="w-full px-2 py-1.5 text-xs font-medium rounded-lg transition-all border"
+                :class="typeLycee.includes('polyvalent')
+                  ? 'bg-zinc-100 border-zinc-300 text-zinc-900'
+                  : 'bg-white border-zinc-200 text-zinc-600 hover:bg-zinc-50'"
+                @click="toggleLyceeType('polyvalent')"
+              >
+                Polyvalent
+              </button>
+            </div>
+          </template>
         </div>
       </template>
 

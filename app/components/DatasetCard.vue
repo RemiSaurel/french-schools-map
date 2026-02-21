@@ -1,20 +1,11 @@
 <script setup lang="ts">
-const props = defineProps<{
+defineProps<{
   name: string;
-  id: string;
+  shortName: string;
+  link: string;
   description: string;
   year: string;
 }>();
-
-// Shorten the dataset ID for display
-const shortId = computed(() => {
-  // Remove 'fr-en-' prefix and shorten long names
-  return props.id
-    .replace("fr-en-", "")
-    .replace("indicateurs-valeur-ajoutee-colleges", "ivac")
-    .replace("ips-colleges-ap2023", "ips-2023")
-    .replace("annuaire-education", "annuaire");
-});
 </script>
 
 <template>
@@ -39,12 +30,12 @@ const shortId = computed(() => {
       </p>
     </div>
     <UButton
-      :to="`https://data.education.gouv.fr/explore/dataset/${id}/`"
+      :to="link"
       target="_blank"
       icon="i-lucide-external-link"
       variant="link"
       size="xs"
-      :label="shortId"
+      :label="shortName"
       class="text-xs self-start mt-2 -ml-2"
     />
   </div>

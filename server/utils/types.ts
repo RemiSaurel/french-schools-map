@@ -1,3 +1,6 @@
+/** Lycée sub-type derived from the type_de_lycee field in the IPS dataset */
+export type LyceeType = "general" | "professionnel" | "polyvalent";
+
 export interface SchoolFeature {
   type: "Feature";
   geometry: {
@@ -26,6 +29,8 @@ export interface SchoolFeature {
     taux_mentions: number | null;
     // Lycee-specific: valeur ajoutée mentions
     va_mentions: number | null;
+    // Lycee sub-type (null for collèges)
+    type_lycee: LyceeType | null;
   };
 }
 
