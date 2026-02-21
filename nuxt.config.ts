@@ -1,17 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  app: {
-    head: {
-      script: [
-        {
-          "src": "/api/umami.js",
-          "defer": true,
-          "data-website-id": "9353da54-9c48-4145-b325-843caf88bcd8",
-        },
-      ],
-    },
-  },
-
   modules: [
     "@nuxt/eslint",
     "@nuxt/ui",
