@@ -61,9 +61,10 @@ useSeoMeta({
         <div class="mt-4 grid gap-3 md:grid-cols-3">
           <DatasetCard
             v-for="ds in dataset.dataSources"
-            :id="ds.id"
-            :key="ds.id"
+            :key="ds.link"
             :name="ds.name"
+            :short-name="ds.shortName"
+            :link="ds.link"
             :description="ds.description"
             :year="ds.year"
           />
