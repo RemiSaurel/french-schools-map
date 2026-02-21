@@ -1,4 +1,8 @@
-export type { CollegeFeature, CollegeGeoJSON, SchoolFeature, SchoolGeoJSON } from "../../server/utils/types";
+import type { LyceeType } from "../../server/utils/types";
+
+export type { CollegeFeature, CollegeGeoJSON, LyceeType, SchoolFeature, SchoolGeoJSON } from "../../server/utils/types";
+
+export const ALL_LYCEE_TYPES: LyceeType[] = ["general", "professionnel", "polyvalent"];
 
 export interface FilterState {
   regions: string[];
@@ -7,6 +11,8 @@ export interface FilterState {
   ipsRange: [number, number];
   search: string;
   locationMode: "all" | "metropolitan" | "drom-com";
+  // Lycée sub-type filter (empty array = all types, only applicable for lycées dataset)
+  typeLycee: LyceeType[];
   // DNB filters (null = inactive/disabled)
   tauxReussiteRange: [number, number] | null;
   valeurAjouteeRange: [number, number] | null;

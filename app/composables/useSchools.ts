@@ -17,6 +17,7 @@ export function useSchools() {
     ipsRange: [IPS_MIN, IPS_MAX],
     search: "",
     locationMode: "metropolitan",
+    typeLycee: [],
     tauxReussiteRange: null,
     valeurAjouteeRange: null,
     noteEcritRange: null,
@@ -42,6 +43,7 @@ export function useSchools() {
   // Check if any non-region filters are active (for smart zoom)
   const hasNonRegionFilters = computed(() => {
     return filters.secteur !== ""
+      || filters.typeLycee.length > 0
       || filters.academies.length > 0
       || filters.ipsRange[0] !== IPS_MIN
       || filters.ipsRange[1] !== IPS_MAX
@@ -69,6 +71,10 @@ export function useSchools() {
       if (filters.locationMode === "drom-com" && !DROM_COM_REGIONS.includes(p.region))
         return false;
       if (filters.secteur && p.secteur !== filters.secteur)
+        return false;
+
+      // Lycée type filter (général / professionnel / polyvalent)
+      if (filters.typeLycee.length > 0 && p.type_lycee !== null && !filters.typeLycee.includes(p.type_lycee))
         return false;
 
       // IPS filter
@@ -222,6 +228,7 @@ export function useSchools() {
     filters.ipsRange = [IPS_MIN, IPS_MAX];
     filters.search = "";
     filters.locationMode = "metropolitan";
+    filters.typeLycee = [];
     filters.tauxReussiteRange = null;
     filters.valeurAjouteeRange = null;
     filters.noteEcritRange = null;

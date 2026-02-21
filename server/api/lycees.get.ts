@@ -1,5 +1,15 @@
-import type { SchoolFeature, SchoolGeoJSON } from "../utils/types";
+import type { LyceeType, SchoolFeature, SchoolGeoJSON } from "../utils/types";
 import { fetchAllRecords } from "../utils/education-api";
+
+/** Map raw API type_de_lycee codes to our LyceeType values */
+function parseLyceeType(raw: string | null | undefined): LyceeType | null {
+  switch (raw) {
+    case "LEGT": return "general";
+    case "LP": return "professionnel";
+    case "LPO": return "polyvalent";
+    default: return null;
+  }
+}
 
 interface IpsLyceeRecord {
   uai: string;
@@ -134,6 +144,7 @@ export default defineEventHandler(async () => {
         note_ecrit: null, // No written exam score for Bac
         taux_mentions: bac?.taux_men_total ?? null,
         va_mentions: bac?.va_men_total ?? null,
+        type_lycee: parseLyceeType(ips.type_de_lycee),
       },
     });
   }
