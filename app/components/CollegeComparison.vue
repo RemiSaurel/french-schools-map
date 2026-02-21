@@ -1,22 +1,23 @@
 <script setup lang="ts">
-import type { CollegeFeature } from "~/utils/types";
+import type { SchoolFeature } from "~/utils/types";
 import { motion } from "motion-v";
-import { useCollegeComparison } from "~/composables/useCollegeComparison";
 import { formatFr, ipsColor } from "~/utils/colors";
 
 const props = defineProps<{
-  colleges: CollegeFeature[];
+  colleges: SchoolFeature[];
   onRemoveCollege: (uai: string) => void;
   onClearComparison: () => void;
 }>();
 
-const { getMentionsPct, getVaLabel } = useCollegeComparison();
+const dataset = useDataset();
+const isColleges = dataset.id === "colleges";
+const { getMentionsPct, getVaLabel } = useSchoolComparison();
 
-// Get colleges as tuple when we know there are exactly 2
+// Get schools as tuple when we know there are exactly 2
 const collegePair = computed(() => {
   if (props.colleges.length !== 2)
     return null;
-  return [props.colleges[0], props.colleges[1]] as [CollegeFeature, CollegeFeature];
+  return [props.colleges[0], props.colleges[1]] as [SchoolFeature, SchoolFeature];
 });
 
 const firstCollege = computed(() => props.colleges[0] ?? null);
@@ -52,11 +53,11 @@ const firstCollege = computed(() => props.colleges[0] ?? null);
 
     <!-- Comparison Content -->
     <div class="p-4">
-      <!-- Two Colleges Comparison -->
+      <!-- Two Schools Comparison -->
       <div v-if="collegePair" class="space-y-2">
-        <!-- College Headers -->
+        <!-- School Headers -->
         <div class="grid grid-cols-[1fr_auto_1fr] gap-0 pb-3 border-b border-zinc-200/80">
-          <!-- College 1 Header -->
+          <!-- School 1 Header -->
           <div class="pr-4 text-ellipsis overflow-hidden">
             <ComparisonHeader
               :college="collegePair[0]"
@@ -68,7 +69,7 @@ const firstCollege = computed(() => props.colleges[0] ?? null);
           <!-- Vertical Separator -->
           <div class="w-px bg-zinc-200 mx-4" />
 
-          <!-- College 2 Header -->
+          <!-- School 2 Header -->
           <div class="pl-4 text-ellipsis overflow-hidden">
             <ComparisonHeader
               :college="collegePair[1]"
@@ -80,7 +81,7 @@ const firstCollege = computed(() => props.colleges[0] ?? null);
 
         <!-- IPS Row - No winner highlighting, just IPS colors -->
         <div class="grid grid-cols-[1fr_96px_1fr] gap-4 items-center">
-          <!-- College 1 IPS -->
+          <!-- School 1 IPS -->
           <div class="text-right pr-4">
             <span
               class="text-lg font-bold"
@@ -95,7 +96,7 @@ const firstCollege = computed(() => props.colleges[0] ?? null);
             <span class="text-xs font-semibold text-zinc-500 uppercase tracking-wider">IPS</span>
           </div>
 
-          <!-- College 2 IPS -->
+          <!-- School 2 IPS -->
           <div class="text-left pl-4">
             <span
               class="text-lg font-bold"
@@ -106,10 +107,10 @@ const firstCollege = computed(() => props.colleges[0] ?? null);
           </div>
         </div>
 
-        <!-- DNB Section -->
+        <!-- Exam Section -->
         <div v-if="collegePair[0].properties.taux_reussite !== null || collegePair[1].properties.taux_reussite !== null" class="pt-2 border-t border-zinc-200/60 space-y-3">
           <div class="text-center">
-            <span class="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">Résultats DNB 2024</span>
+            <span class="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">Résultats {{ dataset.examLabel }}</span>
           </div>
 
           <!-- Réussite Row -->
@@ -150,15 +151,26 @@ const firstCollege = computed(() => props.colleges[0] ?? null);
             </div>
           </div>
 
-          <!-- Note Écrit Row -->
+          <!-- Note Écrit Row (colleges only) -->
           <ComparisonRow
-            v-if="collegePair[0].properties.note_ecrit !== null || collegePair[1].properties.note_ecrit !== null"
+            v-if="isColleges && (collegePair[0].properties.note_ecrit !== null || collegePair[1].properties.note_ecrit !== null)"
             label="Moyenne /20"
             :college1="collegePair[0]"
             :college2="collegePair[1]"
             :value1="collegePair[0].properties.note_ecrit"
             :value2="collegePair[1].properties.note_ecrit"
             :decimals="1"
+          />
+
+          <!-- Taux Mentions Row (lycees only) -->
+          <ComparisonRow
+            v-if="!isColleges && (collegePair[0].properties.taux_mentions !== null || collegePair[1].properties.taux_mentions !== null)"
+            label="Mentions"
+            :college1="collegePair[0]"
+            :college2="collegePair[1]"
+            :value1="collegePair[0].properties.taux_mentions"
+            :value2="collegePair[1].properties.taux_mentions"
+            suffix="%"
           />
 
           <!-- Candidats Row -->
@@ -180,7 +192,7 @@ const firstCollege = computed(() => props.colleges[0] ?? null);
           </div>
 
           <div class="grid grid-cols-2 gap-4">
-            <!-- College 1 Mentions -->
+            <!-- School 1 Mentions -->
             <div class="text-right pr-4">
               <MentionsBar
                 :mentions="getMentionsPct(collegePair[0])"
@@ -189,7 +201,7 @@ const firstCollege = computed(() => props.colleges[0] ?? null);
               />
             </div>
 
-            <!-- College 2 Mentions -->
+            <!-- School 2 Mentions -->
             <div class="text-left pl-4">
               <MentionsBar
                 :mentions="getMentionsPct(collegePair[1])"
@@ -221,27 +233,27 @@ const firstCollege = computed(() => props.colleges[0] ?? null);
         </div>
       </div>
 
-      <!-- Only 1 college selected -->
+      <!-- Only 1 school selected -->
       <div v-else-if="firstCollege" class="text-center py-6">
         <div class="flex items-center justify-center gap-3 mb-3">
           <span class="font-medium text-lg text-zinc-700">{{ firstCollege.properties.nom }}</span>
         </div>
         <p class="text-sm text-zinc-400">
-          Sélectionnez un 2ème collège sur la carte pour comparer
+          Sélectionnez {{ isColleges ? 'un 2ème collège' : 'un 2ème lycée' }} sur la carte pour comparer
         </p>
       </div>
 
-      <!-- No colleges selected - waiting for selection -->
+      <!-- No schools selected - waiting for selection -->
       <div v-else class="text-center py-6">
         <UIcon
           name="i-lucide-git-compare"
           class="w-8 h-8 mx-auto mb-3 text-zinc-400"
         />
         <h3 class="font-semibold text-base text-zinc-900 mb-2">
-          Comparer des collèges
+          Comparer des {{ dataset.labelPlural }}
         </h3>
         <p class="text-sm text-zinc-500">
-          Sélectionnez 2 collèges sur la carte pour les comparer
+          Sélectionnez 2 {{ dataset.labelPlural }} sur la carte pour les comparer
         </p>
       </div>
     </div>

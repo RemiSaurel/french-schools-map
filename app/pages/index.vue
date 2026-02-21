@@ -3,16 +3,17 @@ const {
   data,
   status,
   error,
+  dataset,
   filters,
   filteredFeatures,
-  selectedCollege,
+  selectedSchool,
   stats,
-  hasDnbFilters,
+  hasExamFilters,
   hasNonRegionFilters,
-  selectCollege,
+  selectSchool,
   resetFilters,
   // Comparison
-  comparisonColleges,
+  comparisonSchools,
   comparisonModeEnabled,
   canAddToComparison,
   hasComparison: _hasComparison,
@@ -20,21 +21,21 @@ const {
   addToComparison,
   removeFromComparison,
   clearComparison,
-} = useColleges();
+} = useSchools();
 
 const sidebarOpen = ref(true);
 const isLargeScreen = ref(false);
 const cardMinimized = ref(false); // Toggle minimize/maximize card
-const collegeMapRef = ref<{ highlightFilteredColleges: () => void } | null>(null);
+const collegeMapRef = ref<{ highlightFilteredSchools: () => void } | null>(null);
 const comparisonPanelOpen = ref(false); // Whether comparison panel is visible
 
 // Sync comparison mode with panel open state
 watch(comparisonPanelOpen, (isOpen) => {
-  comparisonModeEnabled.value = isOpen && comparisonColleges.value.length < 2;
+  comparisonModeEnabled.value = isOpen && comparisonSchools.value.length < 2;
 });
 
 // Disable comparison mode when comparison is cleared
-watch(() => comparisonColleges.value.length, (length) => {
+watch(() => comparisonSchools.value.length, (length) => {
   if (length === 0) {
     comparisonModeEnabled.value = comparisonPanelOpen.value;
   } else if (length === 2) {
@@ -51,8 +52,8 @@ onMounted(() => {
   onUnmounted(() => window.removeEventListener("resize", checkScreenSize));
 });
 
-function deselectCollege() {
-  selectCollege(null);
+function deselectSchool() {
+  selectSchool(null);
 }
 
 function toggleCardMinimized() {
@@ -60,18 +61,18 @@ function toggleCardMinimized() {
 }
 
 function handleHighlight() {
-  collegeMapRef.value?.highlightFilteredColleges();
+  collegeMapRef.value?.highlightFilteredSchools();
 }
 
 function handleAddToComparison() {
-  if (selectedCollege.value) {
-    addToComparison(selectedCollege.value);
+  if (selectedSchool.value) {
+    addToComparison(selectedSchool.value);
   }
 }
 
 function handleRemoveFromComparison() {
-  if (selectedCollege.value) {
-    removeFromComparison(selectedCollege.value.properties.uai);
+  if (selectedSchool.value) {
+    removeFromComparison(selectedSchool.value.properties.uai);
   }
 }
 </script>
@@ -113,8 +114,8 @@ function handleRemoveFromComparison() {
         <CollegeMap
           ref="collegeMapRef"
           :filtered-features="filteredFeatures"
-          :selected-college="selectedCollege"
-          :select-college="selectCollege"
+          :selected-college="selectedSchool"
+          :select-college="selectSchool"
           :selected-regions="filters.regions"
           :has-non-region-filters="hasNonRegionFilters"
           :total-count="data?.features.length || 0"
@@ -177,14 +178,14 @@ function handleRemoveFromComparison() {
                   <!-- Histogram -->
                   <IpsHistogram
                     :features="filteredFeatures"
-                    :selected-ips="selectedCollege?.properties.ips ?? null"
+                    :selected-ips="selectedSchool?.properties.ips ?? null"
                     class="border-b border-zinc-200 shrink-0 p-4"
                   />
 
                   <!-- Filters -->
                   <FilterSidebar
                     :filters="filters"
-                    :has-dnb-filters="hasDnbFilters"
+                    :has-exam-filters="hasExamFilters"
                     :on-reset="resetFilters"
                     class="p-4"
                     @update:filters="(newFilters) => Object.assign(filters, newFilters)"
@@ -204,7 +205,7 @@ function handleRemoveFromComparison() {
                   trailing-icon="i-lucide-arrow-right"
                 />
                 <UButton
-                  to="https://github.com/remisaurel/colleges-france"
+                  :to="dataset.githubUrl"
                   target="_blank"
                   variant="link"
                   color="neutral"
@@ -235,19 +236,19 @@ function handleRemoveFromComparison() {
           <template #body>
             <div class="p-4">
               <p class="text-xs text-zinc-500 mb-4">
-                Carte des collèges en France.
+                Carte des {{ dataset.labelPlural }} en France.
               </p>
 
               <IpsHistogram
                 :features="filteredFeatures"
-                :selected-ips="selectedCollege?.properties.ips ?? null"
+                :selected-ips="selectedSchool?.properties.ips ?? null"
               />
 
               <USeparator class="my-4" />
 
               <FilterSidebar
                 :filters="filters"
-                :has-dnb-filters="hasDnbFilters"
+                :has-exam-filters="hasExamFilters"
                 :on-reset="resetFilters"
                 @update:filters="(newFilters) => Object.assign(filters, newFilters)"
               />
@@ -259,15 +260,15 @@ function handleRemoveFromComparison() {
       <!-- Right side card area - Unified Info Card with Tabs -->
       <div class="absolute top-4 right-4 z-10 w-80 sm:w-96 max-w-[calc(100vw-24px)] max-h-[calc(100vh-2rem)] flex flex-col">
         <InfoCard
-          :college="selectedCollege"
+          :college="selectedSchool"
           :filtered-features="filteredFeatures"
           :stats="stats"
           :minimized="cardMinimized"
           :on-toggle-minimized="toggleCardMinimized"
-          :on-deselect-college="deselectCollege"
+          :on-deselect-college="deselectSchool"
           :on-highlight="handleHighlight"
           :can-add-to-comparison="canAddToComparison"
-          :is-in-comparison="selectedCollege ? isInComparison(selectedCollege.properties.uai) : false"
+          :is-in-comparison="selectedSchool ? isInComparison(selectedSchool.properties.uai) : false"
           :on-add-to-comparison="handleAddToComparison"
           :on-remove-from-comparison="handleRemoveFromComparison"
           class="flex-1 min-h-0"
@@ -276,7 +277,7 @@ function handleRemoveFromComparison() {
         <!-- Comparison Toggle Button -->
         <ComparisonToggle
           :is-open="comparisonPanelOpen"
-          :count="comparisonColleges.length"
+          :count="comparisonSchools.length"
           class="shrink-0"
           @toggle="comparisonPanelOpen = !comparisonPanelOpen"
         />
@@ -285,12 +286,12 @@ function handleRemoveFromComparison() {
       <!-- Comparison Panel -->
       <Transition name="slide-up">
         <div
-          v-if="comparisonPanelOpen || comparisonColleges.length > 0"
+          v-if="comparisonPanelOpen || comparisonSchools.length > 0"
           class="absolute bottom-0 left-0 right-0 z-20 sm:left-4 sm:right-4 sm:bottom-4"
         >
           <div class="sm:max-w-2xl sm:mx-auto">
             <CollegeComparison
-              :colleges="comparisonColleges"
+              :colleges="comparisonSchools"
               :on-remove-college="removeFromComparison"
               :on-clear-comparison="
                 () => {

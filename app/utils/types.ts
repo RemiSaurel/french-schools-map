@@ -1,4 +1,4 @@
-export type { CollegeFeature, CollegeGeoJSON } from "../../server/utils/types";
+export type { CollegeFeature, CollegeGeoJSON, SchoolFeature, SchoolGeoJSON } from "../../server/utils/types";
 
 export interface FilterState {
   regions: string[];

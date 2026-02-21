@@ -1,4 +1,4 @@
-import type { CollegeFeature } from "~/utils/types";
+import type { SchoolFeature } from "~/utils/types";
 
 interface MentionsPct {
   tb: number;
@@ -13,12 +13,12 @@ interface VaLabel {
   icon: string;
 }
 
-export function useCollegeComparison() {
+export function useSchoolComparison() {
   /**
-   * Calculate mentions percentages from a college's data
+   * Calculate mentions percentages from a school's data
    */
-  function getMentionsPct(college: CollegeFeature): MentionsPct | null {
-    const p = college.properties;
+  function getMentionsPct(school: SchoolFeature): MentionsPct | null {
+    const p = school.properties;
     if (!p.nb_candidats || !p.mentions_tb)
       return null;
 
@@ -34,8 +34,8 @@ export function useCollegeComparison() {
   /**
    * Get valeur ajoutée label with color and icon
    */
-  function getVaLabel(college: CollegeFeature): VaLabel | null {
-    const va = college.properties.valeur_ajoutee;
+  function getVaLabel(school: SchoolFeature): VaLabel | null {
+    const va = school.properties.valeur_ajoutee;
     if (va === null || va === undefined || Number.isNaN(va))
       return null;
 

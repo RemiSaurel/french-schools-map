@@ -1,5 +1,5 @@
 import type maplibregl from "maplibre-gl";
-import type { CollegeFeature } from "./types";
+import type { SchoolFeature } from "./types";
 
 /**
  * Returns a CSS color for an IPS value on a diverging scale.
@@ -100,15 +100,15 @@ function parseNullableNumber(value: string | number | null | undefined): number 
 }
 
 /**
- * Parse MapLibre feature properties into CollegeFeature
+ * Parse MapLibre feature properties into SchoolFeature
  * MapLibre stringifies GeoJSON properties, this function restores proper types
  */
-export function parseCollegeFeature(feature: maplibregl.MapGeoJSONFeature): CollegeFeature {
+export function parseSchoolFeature(feature: maplibregl.MapGeoJSONFeature): SchoolFeature {
   const props = feature.properties;
 
   return {
     type: "Feature",
-    geometry: feature.geometry as CollegeFeature["geometry"],
+    geometry: feature.geometry as SchoolFeature["geometry"],
     properties: {
       uai: props.uai,
       nom: props.nom,
@@ -127,6 +127,11 @@ export function parseCollegeFeature(feature: maplibregl.MapGeoJSONFeature): Coll
       nb_candidats: parseNullableNumber(props.nb_candidats),
       valeur_ajoutee: parseNullableNumber(props.valeur_ajoutee),
       note_ecrit: parseNullableNumber(props.note_ecrit),
+      taux_mentions: parseNullableNumber(props.taux_mentions),
+      va_mentions: parseNullableNumber(props.va_mentions),
     },
   };
 }
+
+/** @deprecated Use parseSchoolFeature instead */
+export const parseCollegeFeature = parseSchoolFeature;

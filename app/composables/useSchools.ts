@@ -1,10 +1,14 @@
-import type { CollegeFeature, CollegeGeoJSON, FilterState } from "~/utils/types";
+import type { FilterState, SchoolFeature, SchoolGeoJSON } from "~/utils/types";
 import { DROM_COM_REGIONS, IPS_MAX, IPS_MIN, normalizeText } from "~/utils/types";
 
-export function useColleges() {
-  const { data, status, error } = useFetch<CollegeGeoJSON>("/api/colleges", {
+export function useSchools() {
+  const dataset = useDataset();
+
+  const { data, status, error } = useFetch<SchoolGeoJSON>(dataset.apiEndpoint, {
     lazy: true,
   });
+
+  const isColleges = dataset.id === "colleges";
 
   const filters = reactive<FilterState>({
     regions: [],
@@ -19,16 +23,16 @@ export function useColleges() {
     nbCandidatsRange: null,
   });
 
-  const selectedCollege = ref<CollegeFeature | null>(null);
+  const selectedSchool = ref<SchoolFeature | null>(null);
 
-  // Comparison state - stores up to 2 colleges for head-to-head comparison
-  const comparisonColleges = ref<CollegeFeature[]>([]);
+  // Comparison state - stores up to 2 schools for head-to-head comparison
+  const comparisonSchools = ref<SchoolFeature[]>([]);
 
   // Comparison mode - whether comparison panel is open and ready to receive selections
   const comparisonModeEnabled = ref(false);
 
-  // Check if any DNB filter is active
-  const hasDnbFilters = computed(() => {
+  // Check if any exam filter is active
+  const hasExamFilters = computed(() => {
     return filters.tauxReussiteRange !== null
       || filters.valeurAjouteeRange !== null
       || filters.noteEcritRange !== null
@@ -42,13 +46,13 @@ export function useColleges() {
       || filters.ipsRange[0] !== IPS_MIN
       || filters.ipsRange[1] !== IPS_MAX
       || filters.search !== ""
-      || hasDnbFilters.value;
+      || hasExamFilters.value;
   });
 
   // Comparison computed properties
-  const canAddToComparison = computed(() => comparisonColleges.value.length < 2);
-  const hasComparison = computed(() => comparisonColleges.value.length === 2);
-  const isInComparison = (uai: string) => comparisonColleges.value.some(c => c.properties.uai === uai);
+  const canAddToComparison = computed(() => comparisonSchools.value.length < 2);
+  const hasComparison = computed(() => comparisonSchools.value.length === 2);
+  const isInComparison = (uai: string): boolean => comparisonSchools.value.some(c => c.properties.uai === uai);
 
   const filteredFeatures = computed(() => {
     if (!data.value?.features)
@@ -84,11 +88,11 @@ export function useColleges() {
           return false;
       }
 
-      // Exclude colleges without DNB data when any DNB filter is active
-      if (hasDnbFilters.value && p.taux_reussite === null)
+      // Exclude schools without exam data when any exam filter is active
+      if (hasExamFilters.value && p.taux_reussite === null)
         return false;
 
-      // DNB Filters - Taux de réussite
+      // Exam Filters - Taux de réussite
       if (filters.tauxReussiteRange) {
         const val = p.taux_reussite;
         if (val === null || val < filters.tauxReussiteRange[0] || val > filters.tauxReussiteRange[1]) {
@@ -96,7 +100,7 @@ export function useColleges() {
         }
       }
 
-      // DNB Filters - Valeur ajoutée
+      // Exam Filters - Valeur ajoutée
       if (filters.valeurAjouteeRange) {
         const val = p.valeur_ajoutee;
         if (val === null || val < filters.valeurAjouteeRange[0] || val > filters.valeurAjouteeRange[1]) {
@@ -104,7 +108,7 @@ export function useColleges() {
         }
       }
 
-      // DNB Filters - Note écrit
+      // Exam Filters - Note écrit (colleges only)
       if (filters.noteEcritRange) {
         const val = p.note_ecrit;
         if (val === null || val < filters.noteEcritRange[0] || val > filters.noteEcritRange[1]) {
@@ -112,7 +116,7 @@ export function useColleges() {
         }
       }
 
-      // DNB Filters - Nb candidats
+      // Exam Filters - Nb candidats
       if (filters.nbCandidatsRange) {
         const val = p.nb_candidats;
         if (val === null || val < filters.nbCandidatsRange[0] || val > filters.nbCandidatsRange[1]) {
@@ -132,55 +136,62 @@ export function useColleges() {
     const ipsValues = features.map(f => f.properties.ips);
     const avgIps = ipsValues.reduce((a, b) => a + b, 0) / ipsValues.length;
 
-    // Filter colleges with DNB data
-    const withDnbData = features.filter(f => f.properties.taux_reussite !== null);
+    // Filter schools with exam data
+    const withExamData = features.filter(f => f.properties.taux_reussite !== null);
 
-    // Calculate DNB averages
-    const avgReussite = withDnbData.length
-      ? withDnbData.reduce((a, f) => a + (f.properties.taux_reussite ?? 0), 0) / withDnbData.length
+    // Calculate exam averages
+    const avgReussite = withExamData.length
+      ? withExamData.reduce((a, f) => a + (f.properties.taux_reussite ?? 0), 0) / withExamData.length
       : null;
 
-    const withVa = withDnbData.filter(f => f.properties.valeur_ajoutee !== null);
+    const withVa = withExamData.filter(f => f.properties.valeur_ajoutee !== null);
     const avgValeurAjoutee = withVa.length
       ? withVa.reduce((a, f) => a + (f.properties.valeur_ajoutee ?? 0), 0) / withVa.length
       : null;
 
-    const withNote = withDnbData.filter(f => f.properties.note_ecrit !== null);
+    const withNote = withExamData.filter(f => f.properties.note_ecrit !== null);
     const avgNoteEcrit = withNote.length
       ? withNote.reduce((a, f) => a + (f.properties.note_ecrit ?? 0), 0) / withNote.length
       : null;
 
-    // Sum of nb_candidats across all colleges with DNB data
-    const totalCandidats = withDnbData.length
-      ? withDnbData.reduce((sum, f) => sum + (f.properties.nb_candidats ?? 0), 0)
+    // Taux de mentions (lycees-specific, but computed generically)
+    const withTauxMentions = withExamData.filter(f => f.properties.taux_mentions !== null);
+    const avgTauxMentions = withTauxMentions.length
+      ? withTauxMentions.reduce((a, f) => a + (f.properties.taux_mentions ?? 0), 0) / withTauxMentions.length
+      : null;
+
+    // Sum of nb_candidats across all schools with exam data
+    const totalCandidats = withExamData.length
+      ? withExamData.reduce((sum, f) => sum + (f.properties.nb_candidats ?? 0), 0)
       : null;
 
     return {
       count: features.length,
-      countWithDnb: withDnbData.length,
+      countWithExam: withExamData.length,
       totalCandidats,
       avgIps: Math.round(avgIps * 10) / 10,
       avgReussite: avgReussite ? Math.round(avgReussite * 10) / 10 : null,
       avgValeurAjoutee: avgValeurAjoutee ? Math.round(avgValeurAjoutee * 10) / 10 : null,
       avgNoteEcrit: avgNoteEcrit ? Math.round(avgNoteEcrit * 10) / 10 : null,
+      avgTauxMentions: avgTauxMentions ? Math.round(avgTauxMentions * 10) / 10 : null,
       minIps: Math.round(Math.min(...ipsValues) * 10) / 10,
       maxIps: Math.round(Math.max(...ipsValues) * 10) / 10,
     };
   });
 
-  function selectCollege(feature: CollegeFeature | null) {
-    selectedCollege.value = feature;
+  function selectSchool(feature: SchoolFeature | null): void {
+    selectedSchool.value = feature;
 
-    // Comparison mode: If comparison panel is open, add colleges to comparison
+    // Comparison mode: If comparison panel is open, add schools to comparison
     if (feature && comparisonModeEnabled.value && !isInComparison(feature.properties.uai)) {
       addToComparison(feature);
       return;
     }
 
-    // Auto-add to comparison UX: If there's already 1 college in comparison
-    // and we're selecting a different college, add it automatically
+    // Auto-add to comparison UX: If there's already 1 school in comparison
+    // and we're selecting a different school, add it automatically
     if (feature
-      && comparisonColleges.value.length === 1
+      && comparisonSchools.value.length === 1
       && !isInComparison(feature.properties.uai)
     ) {
       addToComparison(feature);
@@ -188,23 +199,23 @@ export function useColleges() {
   }
 
   // Comparison actions
-  function addToComparison(college: CollegeFeature) {
-    if (comparisonColleges.value.length >= 2)
+  function addToComparison(school: SchoolFeature): void {
+    if (comparisonSchools.value.length >= 2)
       return;
-    if (isInComparison(college.properties.uai))
+    if (isInComparison(school.properties.uai))
       return;
-    comparisonColleges.value.push(college);
+    comparisonSchools.value.push(school);
   }
 
-  function removeFromComparison(uai: string) {
-    comparisonColleges.value = comparisonColleges.value.filter(c => c.properties.uai !== uai);
+  function removeFromComparison(uai: string): void {
+    comparisonSchools.value = comparisonSchools.value.filter(c => c.properties.uai !== uai);
   }
 
-  function clearComparison() {
-    comparisonColleges.value = [];
+  function clearComparison(): void {
+    comparisonSchools.value = [];
   }
 
-  function resetFilters() {
+  function resetFilters(): void {
     filters.regions = [];
     filters.academies = [];
     filters.secteur = "";
@@ -215,23 +226,25 @@ export function useColleges() {
     filters.valeurAjouteeRange = null;
     filters.noteEcritRange = null;
     filters.nbCandidatsRange = null;
-    selectedCollege.value = null;
+    selectedSchool.value = null;
   }
 
   return {
     data,
     status,
     error,
+    dataset,
+    isColleges,
     filters,
     filteredFeatures,
-    selectedCollege,
+    selectedSchool,
     stats,
-    hasDnbFilters,
+    hasExamFilters,
     hasNonRegionFilters,
-    selectCollege,
+    selectSchool,
     resetFilters,
     // Comparison
-    comparisonColleges,
+    comparisonSchools,
     comparisonModeEnabled,
     canAddToComparison,
     hasComparison,

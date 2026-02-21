@@ -1,19 +1,20 @@
 <script setup lang="ts">
-import type { CollegeFeature } from "~/utils/types";
+import type { SchoolFeature } from "~/utils/types";
 import { motion } from "motion-v";
 import { formatFr, ipsColor } from "~/utils/colors";
 
 const props = defineProps<{
-  college: CollegeFeature | null;
-  filteredFeatures: CollegeFeature[];
+  college: SchoolFeature | null;
+  filteredFeatures: SchoolFeature[];
   stats: {
     count: number;
-    countWithDnb: number;
+    countWithExam: number;
     totalCandidats: number | null;
     avgIps: number;
     avgReussite: number | null;
     avgValeurAjoutee: number | null;
     avgNoteEcrit: number | null;
+    avgTauxMentions: number | null;
     minIps: number;
     maxIps: number;
   } | null;
@@ -22,6 +23,9 @@ const props = defineProps<{
   onDeselectCollege: () => void;
   onHighlight: () => void;
 }>();
+
+const dataset = useDataset();
+const isColleges = dataset.id === "colleges";
 
 // Tab items
 const tabItems = computed(() => [
@@ -32,7 +36,7 @@ const tabItems = computed(() => [
     slot: "stats",
   },
   {
-    label: "Collège",
+    label: dataset.labelPluralTitle.slice(0, 1).toUpperCase() + dataset.labelSingular.slice(1),
     icon: "i-lucide-building-2",
     value: "college",
     slot: "college",
@@ -92,20 +96,21 @@ const vaLabel = computed(() => {
 
 // Stats computed properties
 const count = computed(() => props.stats?.count ?? 0);
-const countWithDnb = computed(() => props.stats?.countWithDnb ?? 0);
+const countWithExam = computed(() => props.stats?.countWithExam ?? 0);
 const avgIps = computed(() => props.stats?.avgIps ?? 0);
 const minIps = computed(() => props.stats?.minIps ?? 0);
 const maxIps = computed(() => props.stats?.maxIps ?? 0);
 const avgReussite = computed(() => props.stats?.avgReussite);
 const avgValeurAjoutee = computed(() => props.stats?.avgValeurAjoutee);
 const avgNoteEcrit = computed(() => props.stats?.avgNoteEcrit);
+const avgTauxMentions = computed(() => props.stats?.avgTauxMentions);
 const totalCandidats = computed(() => props.stats?.totalCandidats ?? null);
-const hasDnbData = computed(() => avgReussite.value !== null || avgValeurAjoutee.value !== null || avgNoteEcrit.value !== null);
+const hasExamData = computed(() => avgReussite.value !== null || avgValeurAjoutee.value !== null || avgNoteEcrit.value !== null || avgTauxMentions.value !== null);
 
-const dnbPercentage = computed(() => {
+const examPercentage = computed(() => {
   if (count.value === 0)
     return 0;
-  return Math.round((countWithDnb.value / count.value) * 100);
+  return Math.round((countWithExam.value / count.value) * 100);
 });
 
 const ipsColorValue = computed(() => {
@@ -131,7 +136,7 @@ const collegeMatchesFilters = computed(() => {
 // Dynamic title and subtitle based on active tab
 const cardTitle = computed(() => {
   if (activeTab.value === "college" && props.college) {
-    return p.value?.nom ?? "Collège";
+    return p.value?.nom ?? dataset.labelPluralTitle.slice(0, 1).toUpperCase() + dataset.labelSingular.slice(1);
   }
   return "Aperçu des données";
 });
@@ -213,7 +218,7 @@ const cardSubtitle = computed(() => {
               variant="ghost"
               size="xs"
               square
-              aria-label="Désélectionner le collège"
+              aria-label="Désélectionner l'établissement"
               @click="onDeselectCollege"
             />
           </template>
@@ -240,7 +245,7 @@ const cardSubtitle = computed(() => {
                     <AnimatedNumber :value="count" :decimals="0" />
                   </div>
                   <div class="text-xs text-zinc-500 mt-1">
-                    Collèges
+                    {{ dataset.labelPluralTitle }}
                   </div>
                 </div>
 
@@ -252,10 +257,10 @@ const cardSubtitle = computed(() => {
                     variant="soft"
                     size="xl"
                     class="w-full h-full flex flex-col items-center justify-center text-sm rounded-xl"
-                    aria-label="Localiser les collèges filtrés"
+                    :aria-label="`Localiser les ${dataset.labelPlural} filtrés`"
                     @click="onHighlight"
                   >
-                    Localiser les collèges
+                    Localiser les {{ dataset.labelPlural }}
                   </UButton>
                 </div>
               </div>
@@ -335,24 +340,24 @@ const cardSubtitle = computed(() => {
                 </div>
               </div>
 
-              <!-- DNB Stats -->
+              <!-- Exam Stats -->
               <div
-                v-if="hasDnbData"
+                v-if="hasExamData"
                 class="space-y-3"
               >
                 <div class="flex items-center gap-2">
                   <div class="h-px flex-1 bg-zinc-200" />
-                  <span class="text-[10px] uppercase tracking-wider text-zinc-500 font-medium">Résultats DNB 2024</span>
+                  <span class="text-[10px] uppercase tracking-wider text-zinc-500 font-medium">Résultats {{ dataset.examLabel }}</span>
                   <div class="h-px flex-1 bg-zinc-200" />
                 </div>
 
-                <!-- Secondary info: colleges with DNB data -->
+                <!-- Secondary info: schools with exam data -->
                 <div class="flex items-center justify-center gap-2 text-xs text-zinc-500">
                   <UIcon
                     name="i-lucide-graduation-cap"
                     class="w-3.5 h-3.5"
                   />
-                  <span><AnimatedNumber :value="countWithDnb" :decimals="0" /> collèges avec données DNB (<AnimatedNumber :value="dnbPercentage" :decimals="0" />%)</span>
+                  <span><AnimatedNumber :value="countWithExam" :decimals="0" /> {{ dataset.labelPlural }} avec données {{ dataset.examName }} (<AnimatedNumber :value="examPercentage" :decimals="0" />%)</span>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
@@ -407,8 +412,9 @@ const cardSubtitle = computed(() => {
                     </div>
                   </UTooltip>
 
-                  <!-- Note Écrit -->
+                  <!-- Note Écrit (colleges) / Taux Mentions (lycées) -->
                   <div
+                    v-if="isColleges"
                     class="p-4 rounded-xl bg-zinc-50 border border-zinc-200/40 text-center group/stat hover:border-zinc-300/60 transition-all"
                   >
                     <div v-if="avgNoteEcrit !== null" class="text-3xl font-bold text-zinc-900">
@@ -419,6 +425,20 @@ const cardSubtitle = computed(() => {
                     </div>
                     <div class="text-xs uppercase tracking-wider text-zinc-500 mt-2">
                       Moyenne
+                    </div>
+                  </div>
+                  <div
+                    v-else
+                    class="p-4 rounded-xl bg-zinc-50 border border-zinc-200/40 text-center group/stat hover:border-zinc-300/60 transition-all"
+                  >
+                    <div v-if="avgTauxMentions !== null" class="text-3xl font-bold text-zinc-900">
+                      <AnimatedNumber :value="avgTauxMentions!" :decimals="0" /><span class="text-lg">%</span>
+                    </div>
+                    <div v-else class="text-sm text-zinc-400 py-2">
+                      Aucune donnée
+                    </div>
+                    <div class="text-xs uppercase tracking-wider text-zinc-500 mt-2">
+                      Mentions
                     </div>
                   </div>
 
@@ -444,7 +464,7 @@ const cardSubtitle = computed(() => {
           <!-- College Tab Content -->
           <template #college>
             <div class="space-y-4">
-              <!-- Warning when college doesn't match filters -->
+              <!-- Warning when school doesn't match filters -->
               <div
                 v-if="!collegeMatchesFilters"
                 class="flex items-center gap-2 px-2 py-1 rounded-md bg-amber-50 border border-amber-200"
@@ -454,7 +474,7 @@ const cardSubtitle = computed(() => {
                   class="w-4 h-4 text-amber-600 shrink-0 mt-0.5"
                 />
                 <p class="text-xs text-amber-700">
-                  Ce collège ne correspond pas aux filtres actuels
+                  {{ isColleges ? 'Ce collège' : 'Ce lycée' }} ne correspond pas aux filtres actuels
                 </p>
               </div>
 
@@ -507,11 +527,11 @@ const cardSubtitle = computed(() => {
                 </div>
               </div>
 
-              <!-- DNB Results -->
+              <!-- Exam Results -->
               <template v-if="college && p!.taux_reussite !== null">
                 <div class="pt-4 border-t border-zinc-200/80">
                   <h4 class="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-3">
-                    DNB 2024
+                    {{ dataset.examLabel }}
                   </h4>
 
                   <div class="grid grid-cols-2 gap-x-4 gap-y-3">
@@ -543,12 +563,22 @@ const cardSubtitle = computed(() => {
                         </div>
                       </UTooltip>
                     </div>
-                    <div v-if="p!.note_ecrit !== null">
+                    <!-- Note écrit (colleges only) -->
+                    <div v-if="isColleges && p!.note_ecrit !== null">
                       <div class="text-xl font-bold">
                         {{ formatFr(p!.note_ecrit!, 1) }}
                       </div>
                       <div class="text-xs text-zinc-500">
                         Note écrit /20
+                      </div>
+                    </div>
+                    <!-- Taux mentions (lycees only) -->
+                    <div v-if="!isColleges && p!.taux_mentions !== null">
+                      <div class="text-xl font-bold">
+                        {{ formatFr(p!.taux_mentions!, 0) }}%
+                      </div>
+                      <div class="text-xs text-zinc-500">
+                        Mentions
                       </div>
                     </div>
                     <div v-if="p!.nb_candidats !== null">
@@ -611,7 +641,7 @@ const cardSubtitle = computed(() => {
               <template v-else-if="college">
                 <div class="pt-4 border-t border-zinc-200/80">
                   <p class="text-xs text-zinc-400 italic">
-                    Résultats DNB 2024 non disponibles pour cet établissement.
+                    Résultats {{ dataset.examLabel }} non disponibles pour cet établissement.
                   </p>
                 </div>
               </template>
@@ -626,7 +656,7 @@ const cardSubtitle = computed(() => {
                   class="w-12 h-12 mx-auto mb-2 text-zinc-300"
                 />
                 <p class="text-sm">
-                  Sélectionnez un collège sur la carte
+                  Sélectionnez {{ isColleges ? 'un collège' : 'un lycée' }} sur la carte
                 </p>
               </div>
             </div>

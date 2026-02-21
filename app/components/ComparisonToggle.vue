@@ -12,9 +12,11 @@ const emit = defineEmits<{
   toggle: [];
 }>();
 
+const dataset = useDataset();
+
 const buttonLabel = computed(() => {
   if (count === 0)
-    return "Comparer des collèges";
+    return `Comparer des ${dataset.labelPlural}`;
   if (count === 1)
     return `Comparer (${count}/2)`;
   return "Comparaison (2/2)";

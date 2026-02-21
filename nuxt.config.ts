@@ -15,6 +15,12 @@ export default defineNuxtConfig({
 
   css: ["~/assets/css/main.css"],
 
+  runtimeConfig: {
+    public: {
+      dataset: "colleges", // overridden by NUXT_PUBLIC_DATASET env var
+    },
+  },
+
   colorMode: {
     preference: "light",
     fallback: "light",
@@ -22,6 +28,7 @@ export default defineNuxtConfig({
 
   routeRules: {
     "/api/colleges": { swr: 86400 },
+    "/api/lycees": { swr: 86400 },
   },
 
   compatibilityDate: "2025-01-15",
@@ -29,6 +36,7 @@ export default defineNuxtConfig({
   nitro: {
     routeRules: {
       "/api/colleges": { cache: { maxAge: 86400 } },
+      "/api/lycees": { cache: { maxAge: 86400 } },
     },
   },
 

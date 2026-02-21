@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { CollegeFeature } from "~/utils/types";
+import type { SchoolFeature } from "~/utils/types";
 
 interface Props {
-  college: CollegeFeature;
+  college: SchoolFeature;
   align?: "left" | "right";
   showRemoveButton?: true;
 }

@@ -1,4 +1,4 @@
-import type { CollegeFeature, CollegeGeoJSON } from "../utils/types";
+import type { SchoolFeature, SchoolGeoJSON } from "../utils/types";
 import { fetchAllRecords } from "../utils/education-api";
 
 interface IpsRecord {
@@ -36,7 +36,7 @@ interface AnnuaireRecord {
 }
 
 // in-memory cache for the GeoJSON
-let cachedData: CollegeGeoJSON | null = null;
+let cachedData: SchoolGeoJSON | null = null;
 let cachedAt = 0;
 const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
 
@@ -77,7 +77,7 @@ export default defineEventHandler(async () => {
   }
 
   // Join datasets: IPS as primary, enriched with IVAC results and Annuaire geo
-  const features: CollegeFeature[] = [];
+  const features: SchoolFeature[] = [];
 
   for (const ips of ipsRecords) {
     if (!ips.uai || !ips.ips)
@@ -113,17 +113,19 @@ export default defineEventHandler(async () => {
         nb_candidats: ivac?.nb_candidats_g ?? null,
         valeur_ajoutee: ivac?.va_du_taux_de_reussite_g ?? null,
         note_ecrit: ivac?.note_a_l_ecrit_g ?? null,
+        taux_mentions: null,
+        va_mentions: null,
       },
     });
   }
 
-  const geojson: CollegeGeoJSON = {
+  const geojson: SchoolGeoJSON = {
     type: "FeatureCollection",
     features,
     metadata: {
       total: features.length,
       ips_year: "2024-2025",
-      dnb_session: "2024",
+      exam_session: "2024",
       generated_at: new Date().toISOString(),
     },
   };
