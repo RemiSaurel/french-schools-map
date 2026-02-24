@@ -195,6 +195,16 @@ function handleRemoveFromComparison() {
 
               <!-- Footer links - always visible at bottom -->
               <div class="p-4 pt-4 space-y-2 border-t border-zinc-200/80 shrink-0 bg-white">
+                <!-- Dataset switch -->
+                <UButton
+                  :to="dataset.id === 'colleges' ? 'https://remisaurel.github.io/lycees-france/' : 'https://remisaurel.github.io/colleges-france/'"
+                  variant="link"
+                  color="neutral"
+                  size="sm"
+                  block
+                  :label="dataset.id === 'colleges' ? 'Voir la carte des lycées' : 'Voir la carte des collèges'"
+                  trailing-icon="i-lucide-arrow-right"
+                />
                 <UButton
                   to="/about"
                   variant="link"
