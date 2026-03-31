@@ -11,7 +11,7 @@ const props = defineProps<{
 
 const dataset = useDataset();
 const isColleges = dataset.id === "colleges";
-const { getMentionsPct, getVaLabel } = useSchoolComparison();
+const { getMentionsPct, getVaLabel, getVaNoteLabel } = useSchoolComparison();
 
 // Get schools as tuple when we know there are exactly 2
 const collegePair = computed(() => {
@@ -161,6 +161,33 @@ const firstCollege = computed(() => props.colleges[0] ?? null);
             :value2="collegePair[1].properties.note_ecrit"
             :decimals="1"
           />
+
+          <!-- VA Note Écrit Row (colleges only) -->
+          <div v-if="isColleges && (getVaNoteLabel(collegePair[0]) || getVaNoteLabel(collegePair[1]))" class="grid grid-cols-[1fr_96px_1fr] gap-4 items-center">
+            <div class="text-right pr-4">
+              <span
+                v-if="getVaNoteLabel(collegePair[0])"
+                class="text-base font-semibold"
+                :class="getVaNoteLabel(collegePair[0])?.color"
+              >
+                {{ getVaNoteLabel(collegePair[0])?.text }}
+              </span>
+              <span v-else class="text-sm text-zinc-400">—</span>
+            </div>
+            <div class="text-center">
+              <span class="text-xs font-medium text-zinc-500">VA note</span>
+            </div>
+            <div class="text-left pl-4">
+              <span
+                v-if="getVaNoteLabel(collegePair[1])"
+                class="text-base font-semibold"
+                :class="getVaNoteLabel(collegePair[1])?.color"
+              >
+                {{ getVaNoteLabel(collegePair[1])?.text }}
+              </span>
+              <span v-else class="text-sm text-zinc-400">—</span>
+            </div>
+          </div>
 
           <!-- Taux Mentions Row (lycees only) -->
           <ComparisonRow

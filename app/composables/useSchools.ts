@@ -21,6 +21,7 @@ export function useSchools() {
     tauxReussiteRange: null,
     valeurAjouteeRange: null,
     noteEcritRange: null,
+    vaNoteEcritRange: null,
     nbCandidatsRange: null,
   });
 
@@ -37,6 +38,7 @@ export function useSchools() {
     return filters.tauxReussiteRange !== null
       || filters.valeurAjouteeRange !== null
       || filters.noteEcritRange !== null
+      || filters.vaNoteEcritRange !== null
       || filters.nbCandidatsRange !== null;
   });
 
@@ -122,6 +124,14 @@ export function useSchools() {
         }
       }
 
+      // Exam Filters - VA note écrit (colleges only)
+      if (filters.vaNoteEcritRange) {
+        const val = p.va_note_ecrit;
+        if (val === null || val < filters.vaNoteEcritRange[0] || val > filters.vaNoteEcritRange[1]) {
+          return false;
+        }
+      }
+
       // Exam Filters - Nb candidats
       if (filters.nbCandidatsRange) {
         const val = p.nb_candidats;
@@ -160,6 +170,11 @@ export function useSchools() {
       ? withNote.reduce((a, f) => a + (f.properties.note_ecrit ?? 0), 0) / withNote.length
       : null;
 
+    const withVaNoteEcrit = withExamData.filter(f => f.properties.va_note_ecrit !== null);
+    const avgVaNoteEcrit = withVaNoteEcrit.length
+      ? withVaNoteEcrit.reduce((a, f) => a + (f.properties.va_note_ecrit ?? 0), 0) / withVaNoteEcrit.length
+      : null;
+
     // Taux de mentions (lycees-specific, but computed generically)
     const withTauxMentions = withExamData.filter(f => f.properties.taux_mentions !== null);
     const avgTauxMentions = withTauxMentions.length
@@ -179,6 +194,7 @@ export function useSchools() {
       avgReussite: avgReussite ? Math.round(avgReussite * 10) / 10 : null,
       avgValeurAjoutee: avgValeurAjoutee ? Math.round(avgValeurAjoutee * 10) / 10 : null,
       avgNoteEcrit: avgNoteEcrit ? Math.round(avgNoteEcrit * 10) / 10 : null,
+      avgVaNoteEcrit: avgVaNoteEcrit ? Math.round(avgVaNoteEcrit * 10) / 10 : null,
       avgTauxMentions: avgTauxMentions ? Math.round(avgTauxMentions * 10) / 10 : null,
       minIps: Math.round(Math.min(...ipsValues) * 10) / 10,
       maxIps: Math.round(Math.max(...ipsValues) * 10) / 10,
@@ -232,6 +248,7 @@ export function useSchools() {
     filters.tauxReussiteRange = null;
     filters.valeurAjouteeRange = null;
     filters.noteEcritRange = null;
+    filters.vaNoteEcritRange = null;
     filters.nbCandidatsRange = null;
     selectedSchool.value = null;
   }

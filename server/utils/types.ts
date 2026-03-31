@@ -25,6 +25,8 @@ export interface SchoolFeature {
     nb_candidats: number | null;
     valeur_ajoutee: number | null;
     note_ecrit: number | null;
+    // College-specific: valeur ajoutée de la note moyenne à l'écrit
+    va_note_ecrit: number | null;
     // Lycee-specific: taux de mentions (percentage)
     taux_mentions: number | null;
     // Lycee-specific: valeur ajoutée mentions

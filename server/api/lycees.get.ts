@@ -182,6 +182,7 @@ export default defineEventHandler(async () => {
         nb_candidats,
         valeur_ajoutee,
         note_ecrit: null, // No written exam score for Bac
+        va_note_ecrit: null, // No VA note for Bac
         taux_mentions,
         va_mentions,
         type_lycee: parseLyceeType(ips.type_de_lycee),

@@ -18,6 +18,8 @@ import {
   NOTE_ECRIT_MIN,
   TAUX_REUSSITE_MAX,
   TAUX_REUSSITE_MIN,
+  VA_NOTE_ECRIT_MAX,
+  VA_NOTE_ECRIT_MIN,
   VALEUR_AJOUTEE_MAX,
   VALEUR_AJOUTEE_MIN,
 } from "~/utils/types";
@@ -123,6 +125,13 @@ const noteEcritRange = computed({
   },
 });
 
+const vaNoteEcritRange = computed({
+  get: () => props.filters.vaNoteEcritRange || [VA_NOTE_ECRIT_MIN, VA_NOTE_ECRIT_MAX],
+  set: (value) => {
+    emit("update:filters", { ...props.filters, vaNoteEcritRange: value });
+  },
+});
+
 const nbCandidatsRange = computed({
   get: () => props.filters.nbCandidatsRange || [NB_CANDIDATS_MIN, NB_CANDIDATS_MAX],
   set: (value) => {
@@ -172,6 +181,7 @@ const hasActiveFilters = computed(() => {
     || props.filters.tauxReussiteRange !== null
     || props.filters.valeurAjouteeRange !== null
     || props.filters.noteEcritRange !== null
+    || props.filters.vaNoteEcritRange !== null
     || props.filters.nbCandidatsRange !== null;
 });
 
@@ -259,6 +269,16 @@ function enableNoteEcrit() {
 
 function disableNoteEcrit() {
   emit("update:filters", { ...props.filters, noteEcritRange: null });
+}
+
+function enableVaNoteEcrit() {
+  if (!props.filters.vaNoteEcritRange) {
+    vaNoteEcritRange.value = [VA_NOTE_ECRIT_MIN, VA_NOTE_ECRIT_MAX];
+  }
+}
+
+function disableVaNoteEcrit() {
+  emit("update:filters", { ...props.filters, vaNoteEcritRange: null });
 }
 
 function enableNbCandidats() {
@@ -609,6 +629,46 @@ function disableNbCandidats() {
                 size="sm"
                 :min="NOTE_ECRIT_MIN"
                 :max="NOTE_ECRIT_MAX"
+                :step="0.5"
+              />
+            </div>
+          </div>
+
+          <!-- VA note écrit (colleges only) -->
+          <div v-if="isColleges">
+            <div class="flex items-center justify-between mb-2">
+              <label class="text-xs font-medium text-zinc-500">
+                {{ filters.vaNoteEcritRange ? `VA note écrit: ${vaNoteEcritRange[0]} – ${vaNoteEcritRange[1]}` : 'VA note écrit' }}
+              </label>
+              <UButton
+                v-if="!filters.vaNoteEcritRange"
+                icon="i-lucide-plus"
+                size="xs"
+                color="neutral"
+                variant="ghost"
+                square
+                @click="enableVaNoteEcrit"
+              />
+              <UButton
+                v-else
+                icon="i-lucide-x"
+                size="xs"
+                color="neutral"
+                variant="ghost"
+                square
+                @click="disableVaNoteEcrit"
+              />
+            </div>
+            <div
+              v-if="filters.vaNoteEcritRange"
+              class="pb-2"
+            >
+              <USlider
+                v-model="vaNoteEcritRange"
+                color="neutral"
+                size="sm"
+                :min="VA_NOTE_ECRIT_MIN"
+                :max="VA_NOTE_ECRIT_MAX"
                 :step="0.5"
               />
             </div>

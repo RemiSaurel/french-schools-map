@@ -17,6 +17,7 @@ export interface FilterState {
   tauxReussiteRange: [number, number] | null;
   valeurAjouteeRange: [number, number] | null;
   noteEcritRange: [number, number] | null;
+  vaNoteEcritRange: [number, number] | null;
   nbCandidatsRange: [number, number] | null;
 }
 
@@ -42,6 +43,8 @@ export const VALEUR_AJOUTEE_MIN = -20;
 export const VALEUR_AJOUTEE_MAX = 20;
 export const NOTE_ECRIT_MIN = 0;
 export const NOTE_ECRIT_MAX = 20;
+export const VA_NOTE_ECRIT_MIN = -4;
+export const VA_NOTE_ECRIT_MAX = 4;
 export const NB_CANDIDATS_MIN = 0;
 export const NB_CANDIDATS_MAX = 300;
 

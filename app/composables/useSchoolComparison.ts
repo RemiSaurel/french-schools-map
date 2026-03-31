@@ -47,8 +47,26 @@ export function useSchoolComparison() {
     return { text: `${vaNum > 0 ? "+" : ""}${vaNum}`, color: "text-zinc-500", icon: "i-lucide-minus" };
   }
 
+  /**
+   * Get VA note écrit label with color and icon (uses tighter +/-0.5 thresholds for /20 scale)
+   */
+  function getVaNoteLabel(school: SchoolFeature): VaLabel | null {
+    const va = school.properties.va_note_ecrit;
+    if (va === null || va === undefined || Number.isNaN(va))
+      return null;
+
+    const vaNum = va === 0 ? 0 : va;
+    const formatted = vaNum.toFixed(1);
+    if (vaNum > 0.5)
+      return { text: `+${formatted}`, color: "text-green-600", icon: "i-lucide-trending-up" };
+    if (vaNum < -0.5)
+      return { text: formatted, color: "text-red-600", icon: "i-lucide-trending-down" };
+    return { text: `${vaNum > 0 ? "+" : ""}${formatted}`, color: "text-zinc-500", icon: "i-lucide-minus" };
+  }
+
   return {
     getMentionsPct,
     getVaLabel,
+    getVaNoteLabel,
   };
 }

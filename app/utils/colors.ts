@@ -138,6 +138,7 @@ export function parseSchoolFeature(feature: maplibregl.MapGeoJSONFeature): Schoo
       nb_candidats: parseNullableNumber(props.nb_candidats),
       valeur_ajoutee: parseNullableNumber(props.valeur_ajoutee),
       note_ecrit: parseNullableNumber(props.note_ecrit),
+      va_note_ecrit: parseNullableNumber(props.va_note_ecrit),
       taux_mentions: parseNullableNumber(props.taux_mentions),
       va_mentions: parseNullableNumber(props.va_mentions),
       type_lycee: parseLyceeType(props.type_lycee),

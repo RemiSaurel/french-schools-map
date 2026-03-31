@@ -184,6 +184,7 @@ onMounted(() => {
       const tauxReussite = featureProps.taux_reussite !== "null" && featureProps.taux_reussite !== null ? Number(featureProps.taux_reussite) : null;
       const valeurAjoutee = featureProps.valeur_ajoutee !== "null" && featureProps.valeur_ajoutee !== null ? Number(featureProps.valeur_ajoutee) : null;
       const noteEcrit = featureProps.note_ecrit !== "null" && featureProps.note_ecrit !== null ? Number(featureProps.note_ecrit) : null;
+      const vaNoteEcrit = featureProps.va_note_ecrit !== "null" && featureProps.va_note_ecrit !== null ? Number(featureProps.va_note_ecrit) : null;
       const nbCandidats = featureProps.nb_candidats !== "null" && featureProps.nb_candidats !== null ? Number(featureProps.nb_candidats) : null;
       const tauxMentions = featureProps.taux_mentions !== "null" && featureProps.taux_mentions !== null ? Number(featureProps.taux_mentions) : null;
 
@@ -252,10 +253,18 @@ onMounted(() => {
 
         // Note écrit - colleges only
         if (noteEcrit !== null && dataset.id === "colleges") {
+          const vaHtml = vaNoteEcrit !== null
+            ? (() => {
+                const vaColor = vaNoteEcrit > 0.5 ? "#16a34a" : vaNoteEcrit < -0.5 ? "#dc2626" : "#71717a";
+                const vaText = `${vaNoteEcrit > 0 ? "+" : ""}${vaNoteEcrit.toFixed(1)}`;
+                return `<div class="text-[10px] font-medium mt-0.5" style="color: ${vaColor}">VA : ${vaText}</div>`;
+              })()
+            : "";
           statsHtml.push(`
             <div>
               <div class="text-lg font-bold text-zinc-900">${noteEcrit.toFixed(1)}<span class="text-sm">/20</span></div>
               <div class="text-[10px] text-zinc-500 uppercase tracking-wider">Moyenne</div>
+              ${vaHtml}
             </div>
           `);
         }

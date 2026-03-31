@@ -14,6 +14,7 @@ const props = defineProps<{
     avgReussite: number | null;
     avgValeurAjoutee: number | null;
     avgNoteEcrit: number | null;
+    avgVaNoteEcrit: number | null;
     avgTauxMentions: number | null;
     minIps: number;
     maxIps: number;
@@ -94,6 +95,19 @@ const vaLabel = computed(() => {
   return { text: `${vaNum > 0 ? "+" : ""}${vaNum}`, color: "text-zinc-500", icon: "i-lucide-minus" };
 });
 
+const vaNoteLabel = computed(() => {
+  const va = p.value?.va_note_ecrit;
+  if (va === null || va === undefined || Number.isNaN(va))
+    return null;
+  const vaNum = va === 0 ? 0 : va;
+  const formatted = vaNum.toFixed(1);
+  if (vaNum > 0.5)
+    return { text: `+${formatted}`, color: "text-green-600" };
+  if (vaNum < -0.5)
+    return { text: formatted, color: "text-red-600" };
+  return { text: `${vaNum > 0 ? "+" : ""}${formatted}`, color: "text-zinc-500" };
+});
+
 // Stats computed properties
 const count = computed(() => props.stats?.count ?? 0);
 const countWithExam = computed(() => props.stats?.countWithExam ?? 0);
@@ -103,6 +117,7 @@ const maxIps = computed(() => props.stats?.maxIps ?? 0);
 const avgReussite = computed(() => props.stats?.avgReussite);
 const avgValeurAjoutee = computed(() => props.stats?.avgValeurAjoutee);
 const avgNoteEcrit = computed(() => props.stats?.avgNoteEcrit);
+const avgVaNoteEcrit = computed(() => props.stats?.avgVaNoteEcrit);
 const avgTauxMentions = computed(() => props.stats?.avgTauxMentions);
 const totalCandidats = computed(() => props.stats?.totalCandidats ?? null);
 const hasExamData = computed(() => avgReussite.value !== null || avgValeurAjoutee.value !== null || avgNoteEcrit.value !== null || avgTauxMentions.value !== null);
@@ -413,10 +428,14 @@ const cardSubtitle = computed(() => {
                   </UTooltip>
 
                   <!-- Note Écrit (colleges) / Taux Mentions (lycées) -->
-                  <div
+                  <UTooltip
                     v-if="isColleges"
-                    class="p-4 rounded-xl bg-zinc-50 border border-zinc-200/40 text-center group/stat hover:border-zinc-300/60 transition-all"
+                    text="Note moyenne à l'écrit en série générale"
+                    :content="{ side: 'bottom' }"
                   >
+                    <div
+                      class="p-4 rounded-xl bg-zinc-50 border border-zinc-200/40 text-center group/stat hover:border-zinc-300/60 transition-all cursor-help"
+                    >
                     <div v-if="avgNoteEcrit !== null" class="text-3xl font-bold text-zinc-900">
                       <AnimatedNumber :value="avgNoteEcrit!" :decimals="1" /><span class="text-lg">/20</span>
                     </div>
@@ -426,7 +445,20 @@ const cardSubtitle = computed(() => {
                     <div class="text-xs uppercase tracking-wider text-zinc-500 mt-2">
                       Moyenne
                     </div>
+                    <!-- VA Note annotation -->
+                    <div
+                      v-if="avgVaNoteEcrit !== null && avgVaNoteEcrit !== undefined"
+                      class="mt-1.5 text-xs font-medium"
+                      :class="{
+                        'text-emerald-600': avgVaNoteEcrit > 0.5,
+                        'text-red-600': avgVaNoteEcrit < -0.5,
+                        'text-zinc-500': avgVaNoteEcrit >= -0.5 && avgVaNoteEcrit <= 0.5,
+                      }"
+                    >
+                      VA : {{ avgVaNoteEcrit > 0 ? '+' : '' }}{{ avgVaNoteEcrit.toFixed(1) }}
+                    </div>
                   </div>
+                  </UTooltip>
                   <div
                     v-else
                     class="p-4 rounded-xl bg-zinc-50 border border-zinc-200/40 text-center group/stat hover:border-zinc-300/60 transition-all"
@@ -570,6 +602,14 @@ const cardSubtitle = computed(() => {
                       </div>
                       <div class="text-xs text-zinc-500">
                         Note écrit /20
+                      </div>
+                      <!-- VA Note annotation -->
+                      <div
+                        v-if="vaNoteLabel"
+                        class="text-xs font-medium mt-0.5"
+                        :class="vaNoteLabel.color"
+                      >
+                        VA : {{ vaNoteLabel.text }}
                       </div>
                     </div>
                     <!-- Taux mentions (lycees only) -->

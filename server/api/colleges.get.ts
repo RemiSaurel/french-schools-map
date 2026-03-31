@@ -26,6 +26,7 @@ interface IvacRecord {
   nb_mentions_ab_g: number | null;
   va_du_taux_de_reussite_g: number | null;
   note_a_l_ecrit_g: number | null;
+  va_de_la_note_g: number | null;
   region_academique: string;
 }
 
@@ -54,7 +55,7 @@ export default defineEventHandler(async () => {
     }),
     fetchAllRecords<IvacRecord>("fr-en-indicateurs-valeur-ajoutee-colleges", {
       where: "year(session)=2024",
-      select: "uai,nom_de_l_etablissement,taux_de_reussite_g,nb_candidats_g,nb_mentions_tb_g,nb_mentions_b_g,nb_mentions_ab_g,va_du_taux_de_reussite_g,note_a_l_ecrit_g,region_academique",
+      select: "uai,nom_de_l_etablissement,taux_de_reussite_g,nb_candidats_g,nb_mentions_tb_g,nb_mentions_b_g,nb_mentions_ab_g,va_du_taux_de_reussite_g,note_a_l_ecrit_g,va_de_la_note_g,region_academique",
     }),
     fetchAllRecords<AnnuaireRecord>("fr-en-annuaire-education", {
       where: "type_etablissement=\"Collège\"",
@@ -113,6 +114,7 @@ export default defineEventHandler(async () => {
         nb_candidats: ivac?.nb_candidats_g ?? null,
         valeur_ajoutee: ivac?.va_du_taux_de_reussite_g ?? null,
         note_ecrit: ivac?.note_a_l_ecrit_g ?? null,
+        va_note_ecrit: ivac?.va_de_la_note_g ?? null,
         taux_mentions: null,
         va_mentions: null,
         type_lycee: null,
