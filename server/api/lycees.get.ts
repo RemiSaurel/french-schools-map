@@ -85,18 +85,22 @@ export default defineEventHandler(async () => {
     fetchAllRecords<IpsLyceeRecord>("fr-en-ips-lycees-ap2023", {
       where: "rentree_scolaire=\"2024-2025\"",
       select: "uai,nom_de_l_etablissement,nom_de_la_commune,departement,code_du_departement,academie,region_academique,secteur,type_de_lycee,ips_etab,ecart_type_etablissement,rentree_scolaire",
+      orderBy: "uai",
     }),
     fetchAllRecords<BacResultRecord>("fr-en-indicateurs-de-resultat-des-lycees-gt_v2", {
       where: "year(annee)=2024",
       select: "uai,libelle_uai,taux_reu_total,presents_total,va_reu_total,taux_men_total,va_men_total,nb_mentions_tb_avecf_g,nb_mentions_tb_sansf_g,nb_mentions_b_g,nb_mentions_ab_g,nb_mentions_tb_avecf_t,nb_mentions_tb_sansf_t,nb_mentions_b_t,nb_mentions_ab_t,libelle_region",
+      orderBy: "uai",
     }),
     fetchAllRecords<BacProRecord>("fr-en-indicateurs-de-resultat-des-lycees-pro_v2", {
       where: "year(annee)=2024",
       select: "uai,libelle_uai,taux_reu_total,presents_total,va_reu_total,taux_men_total,va_men_total,nb_mentions_tb_sansf_p,nb_mentions_b_p,nb_mentions_ab_p,libelle_region",
+      orderBy: "uai",
     }),
     fetchAllRecords<AnnuaireRecord>("fr-en-annuaire-education", {
       where: "type_etablissement=\"Lycée\"",
       select: "identifiant_de_l_etablissement,latitude,longitude",
+      orderBy: "identifiant_de_l_etablissement",
     }),
   ]);
 

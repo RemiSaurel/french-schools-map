@@ -40,6 +40,7 @@ export async function fetchAllRecords<T>(
   options: {
     where?: string;
     select?: string;
+    orderBy?: string;
     limit?: number;
   } = {},
 ): Promise<T[]> {
@@ -59,6 +60,8 @@ export async function fetchAllRecords<T>(
       params.set("where", options.where);
     if (options.select)
       params.set("select", options.select);
+    if (options.orderBy)
+      params.set("order_by", options.orderBy);
 
     const url = `${BASE_URL}/${datasetId}/records?${params}`;
     const response = await fetchWithRetry(url);

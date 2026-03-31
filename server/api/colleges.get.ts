@@ -40,7 +40,7 @@ interface AnnuaireRecord {
 let cachedData: SchoolGeoJSON | null = null;
 let cachedAt = 0;
 const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
-const EXPECTED_MIN_FEATURES = 6500; // ~7 000 collèges expected
+const EXPECTED_MIN_FEATURES = 6000; // ~6 350 collèges expected after geo join
 
 export default defineEventHandler(async () => {
   const now = Date.now();
@@ -54,14 +54,17 @@ export default defineEventHandler(async () => {
     fetchAllRecords<IpsRecord>("fr-en-ips-colleges-ap2023", {
       where: "rentree_scolaire=\"2024-2025\"",
       select: "uai,nom_de_l_etablissement,nom_de_la_commune,departement,code_du_departement,academie,region_academique,secteur,ips,ecart_type_de_l_ips,rentree_scolaire",
+      orderBy: "uai",
     }),
     fetchAllRecords<IvacRecord>("fr-en-indicateurs-valeur-ajoutee-colleges", {
       where: "year(session)=2024",
       select: "uai,nom_de_l_etablissement,taux_de_reussite_g,nb_candidats_g,nb_mentions_tb_g,nb_mentions_b_g,nb_mentions_ab_g,va_du_taux_de_reussite_g,note_a_l_ecrit_g,va_de_la_note_g,region_academique",
+      orderBy: "uai",
     }),
     fetchAllRecords<AnnuaireRecord>("fr-en-annuaire-education", {
       where: "type_etablissement=\"Collège\"",
       select: "identifiant_de_l_etablissement,latitude,longitude",
+      orderBy: "identifiant_de_l_etablissement",
     }),
   ]);
 
