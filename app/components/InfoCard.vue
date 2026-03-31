@@ -436,28 +436,28 @@ const cardSubtitle = computed(() => {
                     <div
                       class="p-4 rounded-xl bg-zinc-50 border border-zinc-200/40 text-center group/stat hover:border-zinc-300/60 transition-all cursor-help"
                     >
-                    <div v-if="avgNoteEcrit !== null" class="text-3xl font-bold text-zinc-900">
-                      <AnimatedNumber :value="avgNoteEcrit!" :decimals="1" /><span class="text-lg">/20</span>
+                      <div v-if="avgNoteEcrit !== null" class="text-3xl font-bold text-zinc-900">
+                        <AnimatedNumber :value="avgNoteEcrit!" :decimals="1" /><span class="text-lg">/20</span>
+                      </div>
+                      <div v-else class="text-sm text-zinc-400 py-2">
+                        Aucune donnée
+                      </div>
+                      <div class="text-xs uppercase tracking-wider text-zinc-500 mt-2">
+                        Moyenne
+                      </div>
+                      <!-- VA Note annotation -->
+                      <div
+                        v-if="avgVaNoteEcrit !== null && avgVaNoteEcrit !== undefined"
+                        class="mt-1.5 text-xs font-medium"
+                        :class="{
+                          'text-emerald-600': avgVaNoteEcrit > 0.5,
+                          'text-red-600': avgVaNoteEcrit < -0.5,
+                          'text-zinc-500': avgVaNoteEcrit >= -0.5 && avgVaNoteEcrit <= 0.5,
+                        }"
+                      >
+                        VA : {{ avgVaNoteEcrit > 0 ? '+' : '' }}{{ avgVaNoteEcrit.toFixed(1) }}
+                      </div>
                     </div>
-                    <div v-else class="text-sm text-zinc-400 py-2">
-                      Aucune donnée
-                    </div>
-                    <div class="text-xs uppercase tracking-wider text-zinc-500 mt-2">
-                      Moyenne
-                    </div>
-                    <!-- VA Note annotation -->
-                    <div
-                      v-if="avgVaNoteEcrit !== null && avgVaNoteEcrit !== undefined"
-                      class="mt-1.5 text-xs font-medium"
-                      :class="{
-                        'text-emerald-600': avgVaNoteEcrit > 0.5,
-                        'text-red-600': avgVaNoteEcrit < -0.5,
-                        'text-zinc-500': avgVaNoteEcrit >= -0.5 && avgVaNoteEcrit <= 0.5,
-                      }"
-                    >
-                      VA : {{ avgVaNoteEcrit > 0 ? '+' : '' }}{{ avgVaNoteEcrit.toFixed(1) }}
-                    </div>
-                  </div>
                   </UTooltip>
                   <div
                     v-else
