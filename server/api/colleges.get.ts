@@ -137,7 +137,7 @@ export default defineEventHandler(async () => {
     },
   };
 
-  console.log(`[colleges] Built GeoJSON with ${features.length} features (dropped ${ipsRecords.length - features.length} without geo/IPS)`);
+  console.warn(`[colleges] Built GeoJSON with ${features.length} features (dropped ${ipsRecords.length - features.length} without geo/IPS)`);
 
   if (features.length < EXPECTED_MIN_FEATURES) {
     console.error(`[colleges] Only ${features.length} features (expected >= ${EXPECTED_MIN_FEATURES}). Data may be incomplete.`);

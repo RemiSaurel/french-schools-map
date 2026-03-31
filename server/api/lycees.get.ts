@@ -80,7 +80,7 @@ export default defineEventHandler(async () => {
   }
 
   // Fetch all 4 datasets in parallel
-  console.log("[lycees] Fetching datasets from data.education.gouv.fr...");
+  console.warn("[lycees] Fetching datasets from data.education.gouv.fr...");
   const [ipsRecords, bacGtRecords, bacProRecords, annuaireRecords] = await Promise.all([
     fetchAllRecords<IpsLyceeRecord>("fr-en-ips-lycees-ap2023", {
       where: "rentree_scolaire=\"2024-2025\"",
@@ -100,7 +100,7 @@ export default defineEventHandler(async () => {
     }),
   ]);
 
-  console.log(`[lycees] Fetched: ${ipsRecords.length} IPS, ${bacGtRecords.length} Bac GT, ${bacProRecords.length} Bac Pro, ${annuaireRecords.length} Annuaire`);
+  console.warn(`[lycees] Fetched: ${ipsRecords.length} IPS, ${bacGtRecords.length} Bac GT, ${bacProRecords.length} Bac Pro, ${annuaireRecords.length} Annuaire`);
 
   // Index Bac GT, Bac Pro, and Annuaire by UAI for fast lookup
   const bacByUai = new Map<string, BacResultRecord>();
@@ -205,7 +205,7 @@ export default defineEventHandler(async () => {
     },
   };
 
-  console.log(`[lycees] Built GeoJSON with ${features.length} features (dropped ${ipsRecords.length - features.length} without geo/IPS)`);
+  console.warn(`[lycees] Built GeoJSON with ${features.length} features (dropped ${ipsRecords.length - features.length} without geo/IPS)`);
 
   if (features.length < EXPECTED_MIN_FEATURES) {
     console.error(`[lycees] Only ${features.length} features (expected >= ${EXPECTED_MIN_FEATURES}). Data may be incomplete.`);
