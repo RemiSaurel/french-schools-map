@@ -43,29 +43,7 @@ onMounted(() => {
 
   const m = new maplibregl.Map({
     container: mapContainer.value,
-    style: {
-      version: 8,
-      sources: {
-        "carto-light": {
-          type: "raster",
-          tiles: [
-            "https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png",
-            "https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png",
-            "https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png",
-          ],
-          tileSize: 256,
-          attribution: "© OpenStreetMap contributors © CARTO",
-        },
-      },
-      layers: [{
-        id: "carto-light-layer",
-        type: "raster",
-        source: "carto-light",
-        minzoom: 0,
-        maxzoom: 22,
-      }],
-      glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
-    },
+    style: "https://tiles.openfreemap.org/styles/positron",
     center: INITIAL_CENTER,
     zoom: INITIAL_ZOOM,
     minZoom: 3,

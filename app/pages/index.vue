@@ -225,7 +225,7 @@ function handleRemoveFromComparison() {
                   trailing-icon="i-lucide-github"
                 />
                 <p class="text-xs text-zinc-400 px-2.5 pt-1 font-light tracking-tight">
-                  OpenStreetMap contributors © CARTO
+                  © OpenStreetMap contributors · OpenFreeMap
                 </p>
               </div>
             </div>
